@@ -239,6 +239,17 @@ npm run build
 6. 📱 Build mobile app with React Native
 7. 🤖 Add AI-powered insights with Claude API
 
+## 👨‍💻 Authors
+
+**Paul Kwarteng**
+
+- LinkedIn: [Paul Kwarteng](https://www.linkedin.com/in/paul-kwarteng-22a71b196/)
+- GitHub: [@Boakye-20](https://github.com/Boakye-20)
+
+**Dean Mahmood**
+- LinkedIn: [Dean Mahmood](https://www.linkedin.com/in/dean-mahmood-847aa21b5/)
+
+
 ## 🤝 Contributing
 
 Feel free to fork this project and customize it for your needs!
