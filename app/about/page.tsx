@@ -196,7 +196,7 @@ export default function About() {
 
             {/* About Developer */}
             <section className="mb-12 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg shadow-lg p-8 border border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">About the Developer</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">About the Developers</h2>
 
                 <div className="mb-6">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">Paul K.</h3>
@@ -210,6 +210,21 @@ export default function About() {
 
                     <p className="text-gray-700 mb-6">
                         With a BSc in Politics from the London School of Economics and experience spanning financial services, consulting, and technical implementation, Paul brings a unique blend of business acumen and technical expertise to every project. He specialises in taking complex datasets and regulatory landscapes and transforming them into actionable platforms and practical business intelligence tools.
+                    </p>
+                </div>
+
+                <div className="mb-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Dean Mahmood</h3>
+                    <p className="text-gray-600 mb-4">
+                        Strategy &amp; Analytics
+                    </p>
+
+                    <p className="text-gray-700 mb-4">
+                        Dean is a strategy analyst specialising in financial modeling, business intelligence, and data-driven decision-making. His recent work spans corporate development at Four Seasons, strategic communications at H/Advisors Maitland, and consulting projects at Kearney, where he's built financial models, conducted market research, and delivered commercial due diligence.
+                    </p>
+
+                    <p className="text-gray-700 mb-6">
+                        With a BSc in Chemical Sciences and Management from Imperial College London and technical expertise in Python, SQL, Power BI, and Tableau, Dean combines rigorous analytical thinking with hands-on data skills. He will be joining Accenture as a Strategy Graduate Analyst, where he'll continue developing enterprise solutions at the intersection of strategy and technology.
                     </p>
                 </div>
 
@@ -232,6 +247,15 @@ export default function About() {
                     >
                         <Linkedin className="w-5 h-5" />
                         LinkedIn
+                    </a>
+                    <a
+                        href="https://www.linkedin.com/in/dean-mahmood-847aa21b5/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                    >
+                        <Linkedin className="w-5 h-5" />
+                        LinkedIn (Dean)
                     </a>
                 </div>
             </section>
