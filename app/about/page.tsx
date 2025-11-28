@@ -224,7 +224,7 @@ export default function About() {
                     </p>
 
                     <p className="text-gray-700 mb-6">
-                        With a BSc in Chemical Sciences and Management from Imperial College London and technical expertise in Python, SQL, Power BI, and Tableau, Dean combines rigorous analytical thinking with hands-on data skills. He will be joining Accenture as a Strategy Graduate Analyst, where he'll continue developing enterprise solutions at the intersection of strategy and technology.
+                        With a BSc in Chemical Sciences and Management from Imperial College London and strong technical expertise, Dean specialises in strategy and analytics and brings rigorous analytical thinking and stakeholder-focused insights to business challenges. He will be joining Accenture as a Strategy Graduate Analyst, where he'll continue developing enterprise solutions at the intersection of strategy and technology.
                     </p>
                 </div>
 
