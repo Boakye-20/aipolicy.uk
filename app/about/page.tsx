@@ -220,7 +220,7 @@ export default function About() {
                     </p>
 
                     <p className="text-gray-700 mb-4">
-                        Dean is a strategy analyst specialising in financial modeling, business intelligence, and data-driven decision-making. His recent work spans corporate development at Four Seasons, strategic communications at H/Advisors Maitland, and consulting projects at Kearney, where he's built financial models, conducted market research, and delivered commercial due diligence.
+                        Dean is a strategy analyst specialising in financial modeling, business intelligence, and data-driven decision-making. His recent work spans corporate development, strategic communications, and management consulting, where he's built financial models, conducted market research, and delivered commercial due diligence across various sectors.
                     </p>
 
                     <p className="text-gray-700 mb-6">
@@ -246,7 +246,7 @@ export default function About() {
                         className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                     >
                         <Linkedin className="w-5 h-5" />
-                        LinkedIn
+                        LinkedIn (Paul)
                     </a>
                     <a
                         href="https://www.linkedin.com/in/dean-mahmood-847aa21b5/"
