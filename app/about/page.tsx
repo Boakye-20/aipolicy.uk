@@ -98,7 +98,7 @@ export default function About() {
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">Analysis & Categorisation</h3>
                             <p className="text-gray-700">
-                                Each policy is analysed and categorised by our team of policy experts and AI systems. We identify key attributes such as policy type, affected sectors, implementation dates, and compliance requirements.
+                                Each policy is analysed and categorised by our AI systems. We identify key attributes such as policy type, affected sectors, implementation dates, and compliance requirements.
                             </p>
                         </div>
                     </div>
@@ -175,7 +175,7 @@ export default function About() {
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Update Frequency</h3>
                         <p className="text-gray-700">
-                            Our database is updated weekly to ensure you have access to the latest policy developments. Major regulatory announcements are added within 24-48 hours of publication.
+                            Our database is updated quarterly to ensure you have access to the latest policy developments. Major regulatory announcements are added within 24-48 hours of publication.
                         </p>
                     </div>
 
@@ -246,7 +246,7 @@ export default function About() {
                     </div>
                     <div className="ml-3">
                         <p className="text-sm text-blue-700">
-                            This is a portfolio project built with Next.js, TypeScript, and Tailwind CSS. The application demonstrates modern web development practices and data visualization techniques.
+                            This is a portfolio project built with Next.js, TypeScript, and Tailwind CSS. The application demonstrates modern web development practices and data visualization techniques. Automated categorization powered by GPT-4.
                         </p>
                     </div>
                 </div>

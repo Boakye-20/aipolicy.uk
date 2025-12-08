@@ -35,9 +35,6 @@ function Footer() {
                     <p className="mb-2">
                         Analysis of 500+ UK government AI policy documents across 9 departments. Stay informed about regulatory changes and strategic opportunities.
                     </p>
-                    <p className="text-xs text-gray-500 mb-2">
-                        Automated categorization powered by GPT-4 • Updated weekly • Data from GOV.UK
-                    </p>
                     <p className="text-xs text-gray-600 font-medium">
                         Built by Paul Kwarteng
                     </p>

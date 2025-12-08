@@ -10,12 +10,18 @@ A modern, interactive dashboard for tracking and analyzing UK AI policies and pu
 - **Data Visualization**: Beautiful charts showing trends, distributions, and insights
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **Fast Performance**: Server-side rendering with Next.js for optimal speed
+- **Python Data Pipeline**: Automated data collection and AI analysis from GOV.UK
+- **Quarterly Updates**: Keep your dashboard fresh with ~$0.05/quarter auto-updates
 
 ## 📋 Prerequisites
 
+### For Dashboard (Required):
 - Node.js 18+ installed
-- Your existing Python scripts for data collection
-- CSV data file: `uk_ai_policy_powerbi_ready.csv`
+
+### For Data Updates (Optional):
+- Python 3.8+ installed
+- OpenAI API key (for AI analysis)
+- See `python-scripts/README.md` for details
 
 ## 🛠️ Setup Instructions
 
@@ -161,19 +167,44 @@ Paginated table with:
 
 ## 📊 Keeping Data Updated
 
-### Option 1: Manual Update
-Run your Python scripts, then replace the CSV:
+### Option 1: Automated Quarterly Update (Recommended)
+
+**Cost:** ~$0.05/quarter
+
 ```bash
-python python-scripts/1_download_data.py
-python python-scripts/complete_fresh_analysis_gpt4o.py
-python python-scripts/export_for_powerbi_updated.py
-cp uk_ai_policy_powerbi_ready.csv ./data/
+cd python-scripts
+./quarterly_update.sh
 ```
 
-### Option 2: Automation (Future Enhancement)
-- Schedule Python scripts with cron/GitHub Actions
-- Automatically copy CSV to Next.js project
-- Add API endpoint to trigger data refresh
+This script automatically:
+1. Downloads latest data from GOV.UK
+2. Analyzes new policies with AI
+3. Exports to CSV
+4. Updates your dashboard
+
+### Option 2: Manual Update
+
+```bash
+cd python-scripts
+python 1_download_data.py
+python quarterly_update.py
+python export_for_powerbi_updated.py
+cp uk_ai_policy_powerbi_ready.csv ../data/
+```
+
+### Option 3: Full Refresh (One-time)
+
+**Cost:** ~$3.50 | **Use when:** First setup or major data issues
+
+```bash
+cd python-scripts
+python 1_download_data.py
+python complete_fresh_analysis_IMPROVED.py
+python export_for_powerbi_updated.py
+cp uk_ai_policy_powerbi_ready.csv ../data/
+```
+
+📚 **See `PYTHON_SCRIPTS_GUIDE.md` for detailed instructions**
 
 ## 🚀 Deployment Options
 

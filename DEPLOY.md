@@ -193,7 +193,7 @@ jobs:
 ```
 
 This automatically:
-1. Runs your Python scripts weekly
+1. Runs your Python scripts quarterly
 2. Updates the CSV
 3. Commits and pushes
 4. Triggers Vercel deployment
@@ -317,7 +317,7 @@ Check `.gitignore` doesn't exclude CSV:
 3. **Iterate**
    - Monitor analytics
    - Add features based on usage
-   - Keep data updated weekly
+   - Keep data updated quarterly
 
 ---
 

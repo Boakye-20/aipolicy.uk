@@ -41,7 +41,7 @@ export default function About() {
                         <Database className="w-10 h-10 text-primary-600 mb-3" />
                         <h3 className="font-semibold text-gray-900 mb-2">Comprehensive Coverage</h3>
                         <p className="text-sm text-gray-600">
-                            500+ AI-specific policies from 9 government departments, automatically updated weekly
+                            500+ AI-specific policies from 9 government departments, automatically updated quarterly
                         </p>
                     </div>
 
@@ -75,7 +75,7 @@ export default function About() {
                         <div>
                             <h3 className="font-semibold text-gray-900 mb-1">Automated Data Collection</h3>
                             <p className="text-gray-600 text-sm">
-                                Weekly collection of AI policy documents from official GOV.UK APIs across 9 departments including
+                                Quarterly collection of AI policy documents from official GOV.UK APIs across 9 departments including
                                 DSIT, DBT, Cabinet Office, Home Office, Treasury, CMA, ICO, DHSC, and DfE.
                             </p>
                         </div>
@@ -172,7 +172,7 @@ export default function About() {
                     <div>
                         <h3 className="font-semibold text-gray-900 mb-1">Update Frequency</h3>
                         <p className="text-sm">
-                            The dashboard is updated weekly with new policy publications, ensuring current coverage of
+                            The dashboard is updated quarterly with new policy publications, ensuring current coverage of
                             the UK AI regulatory landscape.
                         </p>
                     </div>
