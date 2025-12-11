@@ -9,7 +9,8 @@ import {
     CheckSquare,
     Building2,
     Tag,
-    Info
+    Info,
+    ExternalLink
 } from 'lucide-react';
 
 const navigation = [
@@ -19,6 +20,12 @@ const navigation = [
     { name: 'Regulations', href: '/regulations', icon: CheckSquare },
     { name: 'Departments', href: '/departments', icon: Building2 },
     { name: 'Topics', href: '/topics', icon: Tag },
+    {
+        name: 'Compliance Tool',
+        href: 'https://ai-compliance-tool-cyan.vercel.app/',
+        icon: ExternalLink,
+        external: true,
+    },
     { name: 'About', href: '/about', icon: Info },
 ];
 
@@ -31,6 +38,26 @@ export default function Navigation() {
                 <div className="flex flex-wrap justify-center gap-x-2 sm:gap-x-4 md:gap-x-6 -mb-px">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href;
+
+                        if ((item as any).external) {
+                            return (
+                                <a
+                                    key={item.name}
+                                    href={item.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`
+                  flex items-center gap-1.5 px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap
+                  border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300
+                `}
+                                >
+                                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                    <span className="hidden sm:inline">{item.name}</span>
+                                    <span className="sm:hidden">{item.name.split(' ')[0]}</span>
+                                </a>
+                            );
+                        }
+
                         return (
                             <Link
                                 key={item.name}
