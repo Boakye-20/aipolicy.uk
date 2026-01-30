@@ -6,11 +6,11 @@ import { Policy } from '@/types/policy';
 export function getPolicies(): Policy[] {
     try {
         // Read the filtered CSV file from the data directory
-        const csvPath = path.join(process.cwd(), 'data', 'uk_ai_policy_filtered.csv');
+        const csvPath = path.join(process.cwd(), 'data', 'uk_ai_policy_with_new_documents.csv');
 
         // Check if file exists
         if (!fs.existsSync(csvPath)) {
-            throw new Error('Data file not found. Please ensure uk_ai_policy_filtered.csv is in the /data folder.');
+            throw new Error('Data file not found. Please ensure uk_ai_policy_with_new_documents.csv is in the /data folder.');
         }
 
         const csvData = fs.readFileSync(csvPath, 'utf-8');
