@@ -1,0 +1,23 @@
+node_modules
+.vercel
+.next/
+
+# Secrets — never commit
+.env
+.env.*
+ingestion/.env
+# ...but DO commit the template (placeholders only, no real keys)
+!.env.example
+!ingestion/.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+
+# Local tooling config — machine-specific, not project config
+.claude/settings.local.json

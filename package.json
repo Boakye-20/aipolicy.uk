@@ -1,0 +1,42 @@
+{
+    "name": "uk-ai-policy-tracker",
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
+    },
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@prisma/client": "^5.22.0",
+        "autoprefixer": "^10.4.22",
+        "critters": "^0.0.23",
+        "csv-parser": "^3.2.0",
+        "csv-stringify": "^6.6.0",
+        "date-fns": "^3.6.0",
+        "lucide-react": "^0.300.0",
+        "next": "^14.1.0",
+        "papaparse": "^5.4.1",
+        "postcss": "^8.5.6",
+        "prisma": "^5.22.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "recharts": "^2.12.7",
+        "tailwindcss": "^3.4.18",
+        "workflow": "^4.0.1-beta.13"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@types/papaparse": "^5.3.14",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "eslint": "^8",
+        "eslint-config-next": "14.2.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5"
+    }
+}

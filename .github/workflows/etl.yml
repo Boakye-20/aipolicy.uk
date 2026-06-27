@@ -1,0 +1,64 @@
+name: AI Policy ETL
+
+# Runs the extraction pipeline on a schedule and on manual trigger.
+# Writes new rows straight into Neon Postgres — nothing is committed back to the
+# repo, so there's no merge noise and no stale data files. The live site reads
+# Postgres directly, so new policies appear without a redeploy.
+
+on:
+  schedule:
+    # 06:00 UTC every Monday. Weekly cadence suits UK policy publishing rhythm.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    # Lets you trigger a run by hand from the Actions tab (e.g. after a major
+    # announcement, or to backfill a longer window).
+    inputs:
+      days:
+        description: "Look back this many days (blank = default 7)"
+        required: false
+        default: ""
+      since:
+        description: "Or an ISO start date, e.g. 2026-01-01 (overrides 'days')"
+        required: false
+        default: ""
+
+# Prevent overlapping runs from racing on the same rows.
+concurrency:
+  group: ai-policy-etl
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: ingestion/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ingestion/requirements.txt
+
+      - name: Run extraction
+        working-directory: ingestion
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Neon direct connection string (the batch job holds one connection and
+          # commits repeatedly — use the direct host, not the serverless pooler).
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -n "${{ github.event.inputs.since }}" ]; then
+            python extract.py --since "${{ github.event.inputs.since }}"
+          elif [ -n "${{ github.event.inputs.days }}" ]; then
+            python extract.py --days "${{ github.event.inputs.days }}"
+          else
+            python extract.py
+          fi

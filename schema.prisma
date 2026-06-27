@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Policy {
+  id                   String    @id @default(cuid())
+  dept                 String?
+  dept_group           String?
+  title                String
+  published_date       DateTime?
+  year                 Int?
+  month                Int?
+  month_name           String?
+  quarter              Int?
+  quarter_label        String?
+  year_month           String?
+  priority_category    String?
+  policy_type          String?
+  business_impact      String?
+  sector_focus         String?
+  ai_application       String?
+  stage                String?
+  audience             String?
+  ai_summary           String?
+  primary_topic        String?
+  key_topics           String?
+  recency              String?
+  days_since_published Int?
+  summary_word_count   Int?
+  topics_count         Int?
+  url                  String    @unique
+
+  // Source metadata used by the frontend Policy type (added to match types/policy.ts)
+  description          String?
+  format               String?
+  display_type         String?
+  collection_date      String?
+  week_of_year         Int?
+
+  // Strict-ETL trust fields ("show your work")
+  relevance_score      Int?
+  requires_action      String?
+  core_obligations     String[]  @default([])
+  source_quote         String?
+
+  // Pipeline control: 'live' = passed the quote gate and shown to users,
+  // 'review' = obligations claimed without a verbatim quote, hidden until approved.
+  status               String    @default("live")
+}

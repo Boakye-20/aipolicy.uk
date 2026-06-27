@@ -1,0 +1,11 @@
+# Development files
+.next
+node_modules
+.git
+.gitignore
+*.log
+.env
+.env.local
+.env.development
+.env.test
+.env.production
