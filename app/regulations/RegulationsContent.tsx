@@ -15,25 +15,24 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
     const [filterDept, setFilterDept] = useState('');
     const [filterSector, setFilterSector] = useState('');
     const [filterRecency, setFilterRecency] = useState('');
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
     const getFilteredPolicies = () => {
         let filtered = [...initialPolicies];
 
-        if (filterDept) {
-            filtered = filtered.filter(p => p.dept === filterDept);
-        }
+        if (filterDept) filtered = filtered.filter(p => p.dept === filterDept);
+        if (filterSector) filtered = filtered.filter(p => p.sector_focus === filterSector);
+        if (filterRecency) filtered = filtered.filter(p => p.recency === filterRecency);
+        if (dateFrom) filtered = filtered.filter(p => new Date(p.published_date) >= new Date(dateFrom));
+        if (dateTo) filtered = filtered.filter(p => new Date(p.published_date) <= new Date(dateTo));
 
-        if (filterSector) {
-            filtered = filtered.filter(p => p.sector_focus === filterSector);
-        }
-
-        if (filterRecency) {
-            filtered = filtered.filter(p => p.recency === filterRecency);
-        }
-
-        return filtered.sort((a, b) =>
-            new Date(b.published_date).getTime() - new Date(a.published_date).getTime()
-        );
+        return filtered.sort((a, b) => {
+            const aTime = new Date(a.published_date).getTime();
+            const bTime = new Date(b.published_date).getTime();
+            return sortOrder === 'newest' ? bTime - aTime : aTime - bTime;
+        });
     };
 
     const filteredPolicies = getFilteredPolicies();
@@ -95,9 +94,31 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                     <option value="">All time</option>
                     {recencyOptions.map(recency => <option key={recency} value={recency}>{recency}</option>)}
                 </select>
-                {(filterDept || filterSector || filterRecency) && (
+                <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    aria-label="Published from"
+                    className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                />
+                <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    aria-label="Published to"
+                    className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                />
+                <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+                    className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                >
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                </select>
+                {(filterDept || filterSector || filterRecency || dateFrom || dateTo) && (
                     <button
-                        onClick={() => { setFilterDept(''); setFilterSector(''); setFilterRecency(''); }}
+                        onClick={() => { setFilterDept(''); setFilterSector(''); setFilterRecency(''); setDateFrom(''); setDateTo(''); }}
                         className="text-sm text-primary-600 hover:text-primary-700"
                     >
                         Clear
@@ -136,7 +157,6 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                             <div className="mt-3 flex flex-wrap gap-1.5">
                                 <PolicyTypeBadge type={policy.policy_type} />
                                 {policy.sector_focus && <NeutralBadge>{policy.sector_focus}</NeutralBadge>}
-                                {policy.ai_application && <NeutralBadge>{policy.ai_application}</NeutralBadge>}
                             </div>
 
                             <SourceEvidence policy={policy} />

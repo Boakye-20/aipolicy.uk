@@ -189,7 +189,6 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
                         <div className="mt-3 flex flex-wrap gap-1.5">
                             <PolicyTypeBadge type={policy.policy_type} />
                             {policy.sector_focus && <NeutralBadge>{policy.sector_focus}</NeutralBadge>}
-                            {policy.ai_application && <NeutralBadge>{policy.ai_application}</NeutralBadge>}
                         </div>
 
                         <SourceEvidence policy={policy} />
