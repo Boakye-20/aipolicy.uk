@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { Policy } from '@/types/policy';
-import StatCard from './StatCard';
 import { FileText, Shield, TrendingUp, Calendar } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+import StatCard from './StatCard';
 import PolicyTable from './PolicyTable';
+import FilterBar from './FilterBar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Helper function to get shortened labels for display
 const getShortLabel = (fullName: string) => {
@@ -20,29 +23,25 @@ const getShortLabel = (fullName: string) => {
     return nameMap[fullName] || fullName;
 };
 
-// Get color based on policy type
-const getColorForPolicyType = (type: string) => {
-    switch (type) {
-        case 'Regulation & Compliance': return '#dc2626';
-        case 'Strategy & Frameworks': return '#0ea5e9';
-        case 'Research & Analysis': return '#10b981';
-        case 'Implementation Guidance': return '#8b5cf6';
-        case 'Funding & Investment': return '#f59e0b';
-        case 'International Cooperation': return '#ec4899';
-        default: return '#9ca3af';
-    }
+const policyTypeColors = {
+    'Regulation & Compliance': '#be123c', // rose-700
+    'Strategy & Frameworks': '#2563eb', // blue-600
+    'Implementation Guidance': '#059669', // emerald-600
+    'Research & Analysis': '#475569', // slate-600
+    'Funding & Investment': '#d97706', // amber-600
+    'International Cooperation': '#5b21b6', // violet-700
+    'Unknown': '#64748b' // slate-500
 };
 
-// Custom tooltip for pie chart
 const CustomTooltip = ({ active, payload, totalPolicies = 0 }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
-            <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
-                <p className="font-medium">{data.name}</p>
-                <p>{data.value} policies</p>
+            <div className="bg-white p-3 border border-slate-200 rounded-md shadow-lg text-sm">
+                <p className="font-bold text-slate-800">{data.name}</p>
+                <p className="text-slate-600">{data.value} policies</p>
                 {totalPolicies > 0 && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-slate-500">
                         {((data.value / totalPolicies) * 100).toFixed(1)}% of total
                     </p>
                 )}
@@ -58,10 +57,6 @@ export default function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [selectedDept, setSelectedDept] = useState<string>('');
     const [selectedType, setSelectedType] = useState<string>('');
-
-    useEffect(() => {
-        fetchPolicies();
-    }, [selectedDept, selectedType]);
 
     const fetchPolicies = async () => {
         try {
@@ -82,13 +77,17 @@ export default function Dashboard() {
             setLoading(false);
         }
     };
+    
+    useEffect(() => {
+        fetchPolicies();
+    }, [selectedDept, selectedType]);
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading policies...</p>
+            <div className="flex items-center justify-center p-10">
+                <div className="text-center text-slate-500">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-700 mx-auto"></div>
+                    <p className="mt-4">Loading policies...</p>
                 </div>
             </div>
         );
@@ -96,197 +95,124 @@ export default function Dashboard() {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-                    <h3 className="text-red-800 font-semibold mb-2">Error Loading Data</h3>
-                    <p className="text-red-600">{error}</p>
-                    <button onClick={fetchPolicies} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                        Retry
-                    </button>
-                </div>
+            <div className="p-10">
+                <Card className="max-w-md mx-auto bg-red-50 border-red-200">
+                    <CardHeader>
+                        <CardTitle className="text-red-800">Error Loading Data</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-red-600">{error}</p>
+                        <button onClick={fetchPolicies} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                            Retry
+                        </button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
-    // Calculate stats with the pre-filtered policies
+    // Process data for charts and stats
     const totalPolicies = policies.length;
     const regulationCount = policies.filter(p => p.policy_type === 'Regulation & Compliance').length;
-
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
     const recentCount = policies.filter(p => new Date(p.published_date) >= sixMonthsAgo).length;
+    const strategicCount = policies.filter(p => ['Strategy & Frameworks', 'Implementation Guidance'].includes(p.policy_type)).length;
 
-    const strategicCount = policies.filter(p =>
-        p.policy_type === 'Strategy & Frameworks' ||
-        p.policy_type === 'Implementation Guidance'
-    ).length;
-
-    // Department data
     const deptData = policies.reduce((acc, policy) => {
         const dept = policy.dept || 'Unknown';
-        const existing = acc.find(item => item.dept === dept);
-        if (existing) {
-            existing.total++;
-            if (policy.policy_type === 'Regulation & Compliance') existing.regulations++;
-        } else {
-            acc.push({
-                dept,
-                total: 1,
-                regulations: policy.policy_type === 'Regulation & Compliance' ? 1 : 0
-            });
+        let item = acc.get(dept);
+        if (!item) {
+            item = { dept, total: 0, regulations: 0 };
         }
+        item.total++;
+        if (policy.policy_type === 'Regulation & Compliance') item.regulations++;
+        acc.set(dept, item);
         return acc;
-    }, [] as Array<{ dept: string; total: number; regulations: number }>).sort((a, b) => b.total - a.total);
+    }, new Map<string, { dept: string; total: number; regulations: number }>()).values();
 
-    // Policy type data with shortened labels
     const policyTypeData = policies.reduce((acc, policy) => {
         const type = policy.policy_type || 'Unknown';
-        const existing = acc.find(item => item.name === type);
-        if (existing) {
-            existing.value++;
-        } else {
-            acc.push({ name: type, value: 1 });
-        }
+        let item = acc.get(type);
+        if (!item) item = { name: type, value: 0 };
+        item.value++;
+        acc.set(type, item);
         return acc;
-    }, [] as Array<{ name: string; value: number }>).sort((a, b) => b.value - a.value);
-
-    // Prepare data for policy type pie chart with shortened labels
-    const pieChartData = policyTypeData.map(item => ({
-        name: item.name,
+    }, new Map<string, { name: string; value: number }>()).values();
+    
+    const pieChartData = Array.from(policyTypeData).map(item => ({
+        ...item,
         displayName: getShortLabel(item.name),
-        value: item.value,
-        color: getColorForPolicyType(item.name)
-    }));
+        color: policyTypeColors[item.name as keyof typeof policyTypeColors] || policyTypeColors['Unknown']
+    })).sort((a,b) => b.value - a.value);
 
     const departments = ['', ...Array.from(new Set(policies.map(p => p.dept))).sort()];
     const policyTypes = ['', ...Array.from(new Set(policies.map(p => p.policy_type))).sort()];
 
     return (
-        <div className="max-w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            <FilterBar
+                departments={departments.slice(1)}
+                policyTypes={policyTypes.slice(1)}
+                selectedDept={selectedDept}
+                selectedType={selectedType}
+                onDeptChange={setSelectedDept}
+                onTypeChange={setSelectedType}
+                onReset={() => { setSelectedDept(''); setSelectedType(''); }}
+            />
 
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Total Policies" value={totalPolicies.toLocaleString()} icon={FileText} />
+                <StatCard title="Regulations" value={regulationCount.toLocaleString()} icon={Shield} change={totalPolicies > 0 ? `${((regulationCount / totalPolicies) * 100).toFixed(0)}% of total` : ''} />
+                <StatCard title="Recent (6 mo)" value={recentCount.toLocaleString()} icon={Calendar} change={totalPolicies > 0 ? `${((recentCount / totalPolicies) * 100).toFixed(0)}% of total` : ''} />
+                <StatCard title="Strategic Docs" value={strategicCount.toLocaleString()} icon={TrendingUp} change={totalPolicies > 0 ? `${((strategicCount / totalPolicies) * 100).toFixed(0)}% of total` : ''} />
+            </div>
 
-            {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Filters */}
-                <div className="bg-white rounded-lg shadow p-4 mb-6 border border-gray-200">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Filter by Department
-                            </label>
-                            <select
-                                value={selectedDept}
-                                onChange={(e) => setSelectedDept(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
-                            >
-                                <option value="">All Departments</option>
-                                {departments.slice(1).map((dept) => (
-                                    <option key={dept} value={dept}>{dept}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Filter by Policy Type
-                            </label>
-                            <select
-                                value={selectedType}
-                                onChange={(e) => setSelectedType(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
-                            >
-                                <option value="">All Types</option>
-                                {policyTypes.slice(1).map((type) => (
-                                    <option key={type} value={type}>{type}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <StatCard
-                        title="Total Policies"
-                        value={totalPolicies}
-                        icon={FileText}
-                    />
-                    <StatCard
-                        title="Regulations"
-                        value={regulationCount}
-                        icon={Shield}
-                        change={`${((regulationCount / totalPolicies) * 100).toFixed(0)}% of total`}
-                    />
-                    <StatCard
-                        title="Recent (6 months)"
-                        value={recentCount}
-                        icon={Calendar}
-                    />
-                    <StatCard
-                        title="Strategic Guidance"
-                        value={strategicCount}
-                        icon={TrendingUp}
-                    />
-                </div>
-
-                {/* Charts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    {/* Department Chart */}
-                    <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Policies by Department</h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart
-                                data={deptData}
-                                layout="vertical"
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <Card className="lg:col-span-3">
+                    <CardHeader>
+                        <CardTitle>Policies by Department</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={350}>
+                            <BarChart data={Array.from(deptData).sort((a, b) => b.total - a.total)} layout="vertical" margin={{ top: 5, right: 30, left: 100, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                                 <XAxis type="number" />
-                                <YAxis
-                                    dataKey="dept"
-                                    type="category"
-                                    width={120}
-                                    tickFormatter={(value) => value}
-                                />
-                                <Tooltip />
-                                <Bar dataKey="total" name="Total Policies" fill="#0ea5e9" />
-                                <Bar dataKey="regulations" fill="#dc2626" name="Regulations" />
+                                <YAxis dataKey="dept" type="category" tick={{ fontSize: 12 }} />
+                                <Tooltip cursor={{ fill: '#f1f5f9' }} contentStyle={{ backgroundColor: 'white', border: '1px solid #e2e8f0' }} />
+                                <Bar dataKey="total" name="Total Policies" fill="#0f172a" />
+                                <Bar dataKey="regulations" name="Regulations" fill="#be123c" />
                             </BarChart>
                         </ResponsiveContainer>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    {/* Policy Type Chart */}
-                    <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Policy Type Distribution</h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <PieChart width={400} height={300}>
-                                <Pie
-                                    data={pieChartData}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={true}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    nameKey="displayName"
-                                    label={({ displayName, percent }) => `${displayName}: ${(percent * 100).toFixed(0)}%`}
-                                >
-                                    {pieChartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
+                <Card className="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Policy Type Distribution</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={350}>
+                             <PieChart>
+                                <Pie data={pieChartData} dataKey="value" nameKey="displayName" cx="50%" cy="50%" outerRadius={100} labelLine={false} label={({ displayName, percent }) => `${displayName} ${(percent * 100).toFixed(0)}%`}>
+                                    {pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                                 </Pie>
                                 <Tooltip content={<CustomTooltip totalPolicies={totalPolicies} />} />
-                                <Legend formatter={(value, entry: any, index) => entry.payload.payload.displayName} />
+                                <Legend iconSize={10} formatter={(value, entry) => <span className="text-slate-600 text-sm">{value}</span>}/>
                             </PieChart>
                         </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* Policy Table */}
-                <div className="mt-8">
-                    <h2 className="text-2xl font-bold mb-4">Policy Documents</h2>
-                    <PolicyTable policies={policies} />
-                </div>
+                    </CardContent>
+                </Card>
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Policy Documents</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <PolicyTable policies={policies} />
+                </CardContent>
+            </Card>
         </div>
     );
 }

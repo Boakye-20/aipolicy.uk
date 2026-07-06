@@ -21,3 +21,19 @@ venv/
 
 # Local tooling config — machine-specific, not project config
 .claude/settings.local.json
+
+# ETL run logs (runtime output from the weekly job)
+ingestion/logs/
+
+# Local Windows scheduler scripts — the GitHub Actions cron (.github/workflows/
+# etl.yml) is the real scheduler; these are just a local fallback, kept off-repo.
+ingestion/run_weekly.ps1
+ingestion/setup_scheduler.ps1
+
+# Working notes / design scratch — not part of the app
+AI_MEMORY.md
+REDESIGN_HANDOFF.md
+code_edits
+components/error and prompt
+pictures
+pictures/

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { Policy } from '@/types/policy';
 
 const prisma = new PrismaClient();
@@ -14,7 +14,7 @@ export async function getPolicies(filters?: {
         // Only live rows reach users. Anything in the review queue
         // (status='review' — obligations without a verbatim quote) stays hidden
         // until a human approves it by setting status='live'.
-        const where: any = { status: 'live' };
+        const where: Prisma.PolicyWhereInput = { status: 'live' };
 
         if (filters?.dept) {
             where.dept = filters.dept;
@@ -39,7 +39,7 @@ export async function getPolicies(filters?: {
             },
         });
 
-        return policies as Policy[];
+        return policies as unknown as Policy[];
     } catch (error) {
         console.error('Error fetching policies:', error);
         throw error;

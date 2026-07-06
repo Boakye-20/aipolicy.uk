@@ -36,6 +36,15 @@ export interface Policy {
   core_obligations: string[];
   source_quote: string | null;
   status: string;
+
+  // Optional fields for professional redesign
+  citation?: string;
+  regulator?: string;
+  consultationCloseDate?: string;
+  legislativeStage?: string;
+  sourceFamily?: string;
+  nationApplicability?: string;
+  impact?: 'High' | 'Medium' | 'Low';
 }
 
 export interface FilterOptions {

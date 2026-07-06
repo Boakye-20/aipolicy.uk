@@ -1,9 +1,7 @@
-import Dashboard from '@/components/Dashboard';
+import HomeContent from './HomeContent';
+import { getPolicies } from '@/lib/data';
 
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Dashboard />
-    </div>
-  );
+export default async function Home() {
+  const policies = await getPolicies({});
+  return <HomeContent initialPolicies={policies} />;
 }

@@ -164,6 +164,14 @@ class PolicyExtraction(BaseModel):
 _PAGE_SIZE = 100
 _MAX_PAGES = 20  # safety cap: 2000 docs/dept is far beyond any realistic window
 
+# GOV.UK content-store document types that ARE consultations / calls for evidence.
+# "Consultation" is not a policy_type in our schema — it's a document format — so
+# it has to be discovered by document type, not by the LLM's category output.
+CONSULTATION_DOC_TYPES = (
+    "open_consultation", "closed_consultation",
+    "consultation_outcome", "call_for_evidence",
+)
+
 
 def fetch_documents(dept_slug: str, since: str) -> list[dict]:
     """Paginate through every result in the date window. The API caps each
@@ -214,6 +222,76 @@ def fetch_documents(dept_slug: str, since: str) -> list[dict]:
     return relevant
 
 
+def fetch_consultations(dept_slug: str, since: str) -> list[dict]:
+    """Dedicated consultation sweep for one department.
+
+    Two things make consultations get under-counted by the ordinary
+    fetch_documents() path, so they get their own pass:
+
+    1. They are a *document type*, not one of our six policy_type categories,
+       so nothing in the normal flow specifically looks for them. Here we ask
+       the GOV.UK Search API for the consultation document types directly via
+       filter_content_store_document_type.
+
+    2. Consultation titles are often generic ("Consultation on ...") and the
+       AI keyword frequently lives only in the body, not the title/description.
+       fetch_documents() filters on title+description and would drop those, so
+       here the AI-relevance check is run against the fetched BODY text (same
+       approach already used for ICO/FCA), not just the title."""
+    results: list[dict] = []
+    start = 0
+    while True:
+        params = {
+            "filter_organisations": dept_slug,
+            "filter_content_store_document_type": list(CONSULTATION_DOC_TYPES),
+            "filter_public_timestamp": f"from:{since}",
+            "order": "-public_timestamp",
+            "count": _PAGE_SIZE,
+            "start": start,
+            "fields[]": ["title", "description", "public_timestamp", "link",
+                         "content_store_document_type", "organisations"],
+        }
+        try:
+            r = requests.get(GOV_UK_SEARCH, params=params, timeout=30)
+            r.raise_for_status()
+            data = r.json()
+            page = data.get("results", [])
+            total = data.get("total", len(page))
+        except Exception as e:
+            log.error(f"GOV.UK consultation fetch failed for {dept_slug} (start={start}): {e}")
+            break
+
+        results.extend(page)
+        start += _PAGE_SIZE
+        if not page or start >= total or start >= _PAGE_SIZE * _MAX_PAGES:
+            break
+
+    relevant = []
+    for d in results:
+        link = d.get("link", "")
+        if link.startswith("/"):
+            link = "https://www.gov.uk" + link
+            d["link"] = link
+        # Body-level AI check: fetch once, cache for extract() to reuse.
+        title = d.get("title", "")
+        desc = d.get("description", "")
+        if is_ai_relevant(title + " " + desc):
+            keep = True
+        else:
+            body = fetch_body_text(link)
+            keep = bool(body and is_ai_relevant(body))
+            if keep:
+                d["_body_cache"] = body
+        if keep:
+            # Preserve the consultation document type as the row's format.
+            d["format"] = d.get("content_store_document_type") or "consultation"
+            d["_dept_slug"] = dept_slug
+            relevant.append(d)
+
+    log.info(f"  {dept_slug} consultations: {len(results)} fetched, {len(relevant)} AI-relevant")
+    return relevant
+
+
 def fetch_body_text(url: str) -> Optional[str]:
     """Clean body text via the GOV.UK Content API (strips HTML boilerplate)."""
     api_url = url.replace("https://www.gov.uk/", "https://www.gov.uk/api/content/")
@@ -261,8 +339,16 @@ def _fetch_ico_article(url: str) -> Optional[dict]:
         log.error(f"ICO article fetch failed for {url}: {e}")
         return None
 
-    h1 = re.search(r"<h1[^>]*>([^<]+)</h1>", page)
-    title = html_module.unescape(h1.group(1)).strip() if h1 else ""
+    # ICO pages carry a site-wide survey banner with its own <h1> ("Take our
+    # website user survey") BEFORE the article headline (verified live on the
+    # Clearview AI judgment page: two banner h1s, then the real one). Take the
+    # first h1 that isn't the banner.
+    title = ""
+    for m in re.finditer(r"<h1[^>]*>([^<]+)</h1>", page):
+        candidate = html_module.unescape(m.group(1)).strip()
+        if candidate and "user survey" not in candidate.lower():
+            title = candidate
+            break
 
     date_m = re.search(r"<span>Date</span>\s*<strong[^>]*>([^<]+)</strong>", page)
     pub_date = None
@@ -725,6 +811,10 @@ def run(since: Optional[str], days: Optional[int]):
         for slug in DEPARTMENTS:
             for doc in fetch_documents(slug, since_date):
                 doc["_dept_slug"] = slug
+                _process_doc(holder, doc, seen, counts)
+            # Dedicated consultation sweep: catches AI consultations whose
+            # keyword is only in the body, which the general sweep drops.
+            for doc in fetch_consultations(slug, since_date):
                 _process_doc(holder, doc, seen, counts)
 
         # Direct sources (no/minimal GOV.UK Search API coverage).

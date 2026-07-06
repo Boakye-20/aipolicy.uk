@@ -366,7 +366,10 @@ export function transformNewDocuments(): Policy[] {
                 url: doc.url,
                 format: doc.format,
                 display_type: doc.display_type || doc.format,
-                collection_date: collectionDate.toISOString()
+                collection_date: collectionDate.toISOString(),
+                core_obligations: [],
+                source_quote: null,
+                status: 'live',
             };
         });
 

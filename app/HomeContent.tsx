@@ -1,0 +1,390 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import { Policy } from '@/types/policy';
+import { formatDate } from '@/lib/utils';
+import { Search, ArrowRight, ExternalLink, TrendingUp, FileText, AlertCircle, BookOpen } from 'lucide-react';
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function getBadgeClass(policyType: string): string {
+    const map: Record<string, string> = {
+        'Regulation & Compliance':   'policy-badge policy-badge--reg',
+        'Strategy & Frameworks':     'policy-badge policy-badge--str',
+        'Implementation Guidance':   'policy-badge policy-badge--imp',
+        'Research & Analysis':       'policy-badge policy-badge--res',
+        'Funding & Investment':      'policy-badge policy-badge--fund',
+        'International Cooperation': 'policy-badge policy-badge--guid',
+    };
+    return map[policyType] ?? 'policy-badge policy-badge--guid';
+}
+
+function getBadgeLabel(policyType: string): string {
+    const map: Record<string, string> = {
+        'Regulation & Compliance':   'Regulation',
+        'Strategy & Frameworks':     'Strategy',
+        'Implementation Guidance':   'Guidance',
+        'Research & Analysis':       'Research',
+        'Funding & Investment':      'Funding',
+        'International Cooperation': 'International',
+    };
+    return map[policyType] ?? policyType;
+}
+
+// Left-border accent colour per type
+const accentBar: Record<string, string> = {
+    'Regulation & Compliance':   'bg-amber-400',
+    'Strategy & Frameworks':     'bg-indigo-400',
+    'Implementation Guidance':   'bg-cyan-400',
+    'Research & Analysis':       'bg-purple-400',
+    'Funding & Investment':      'bg-emerald-400',
+    'International Cooperation': 'bg-blue-400',
+};
+
+const REGULATORS = [
+    { acronym: 'ICO',   name: "Information Commissioner's Office", role: 'Data protection & privacy' },
+    { acronym: 'DSIT',  name: 'Department for Science, Innovation and Technology', role: 'AI strategy & policy' },
+    { acronym: 'CMA',   name: 'Competition and Markets Authority', role: 'Competition oversight' },
+    { acronym: 'Ofcom', name: 'Office of Communications', role: 'Media & platforms' },
+    { acronym: 'FCA',   name: 'Financial Conduct Authority', role: 'Financial services AI' },
+    { acronym: 'AISI',  name: 'AI Safety Institute', role: 'Frontier model safety' },
+    { acronym: 'HoC',   name: 'Parliament', role: 'Legislative scrutiny' },
+];
+
+const FILTERS = ['All', 'Regulation', 'Guidance', 'Strategy', 'Consultation', 'Research'] as const;
+type Filter = (typeof FILTERS)[number];
+
+const FILTER_TO_TYPE: Partial<Record<Filter, string>> = {
+    Regulation: 'Regulation & Compliance',
+    Guidance:   'Implementation Guidance',
+    Strategy:   'Strategy & Frameworks',
+    Research:   'Research & Analysis',
+};
+
+function matchesFilter(p: Policy, filter: Filter): boolean {
+    if (filter === 'All') return true;
+    if (filter === 'Consultation') {
+        // Consultation is a document type, not a policy_type — match the
+        // format/display_type the ETL stores, plus a title/stage fallback for
+        // older rows that predate document-type capture.
+        const hay = `${p.title} ${p.display_type} ${p.format} ${p.stage}`.toLowerCase();
+        return hay.includes('consult') || hay.includes('call for evidence') || hay.includes('call_for_evidence');
+    }
+    return p.policy_type === FILTER_TO_TYPE[filter];
+}
+
+// ── Main content ─────────────────────────────────────────────────────────────
+
+export default function HomeContent({ initialPolicies }: { initialPolicies: Policy[] }) {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeFilter, setActiveFilter] = useState<Filter>('All');
+
+    const policies = initialPolicies;
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchTerm.trim()) {
+            window.location.href = `/policy-explorer?q=${encodeURIComponent(searchTerm)}`;
+        }
+    };
+
+    const sorted = useMemo(
+        () => [...policies].sort(
+            (a, b) => new Date(b.published_date).getTime() - new Date(a.published_date).getTime()
+        ),
+        [policies]
+    );
+
+    // Feed respects the active hero filter
+    const recentPolicies = useMemo(
+        () => sorted.filter(p => matchesFilter(p, activeFilter)).slice(0, 5),
+        [sorted, activeFilter]
+    );
+
+    // Key milestones: the most recent Regulation & Compliance entries, from real data
+    const milestones = useMemo(
+        () => sorted.filter(p => p.policy_type === 'Regulation & Compliance').slice(0, 4),
+        [sorted]
+    );
+
+    // Stats
+    const totalPolicies   = policies.length;
+    const totalReg        = policies.filter(p => p.policy_type === 'Regulation & Compliance').length;
+    const recentThisMonth = policies.filter(p => p.recency === 'Last month').length;
+    const totalDepts      = Array.from(new Set(policies.map(p => p.dept).filter(Boolean))).length;
+    const activeRecent    = policies.filter(p => p.recency === 'Last month' || p.recency === 'Last 3 months').length;
+
+    return (
+        <div className="bg-slate-50">
+
+            {/* ── Hero: narrow, left-aligned, institutional ─────────────── */}
+            <section className="bg-[#0F172A]">
+                {/* Thin UK accent stripe */}
+                <div className="h-[3px] bg-gradient-to-r from-[#012169] via-[#C8102E] to-[#012169]" />
+
+                <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-12">
+                    <div className="max-w-2xl">
+                        <p className="text-xs font-medium text-slate-400 tracking-widest uppercase mb-3">
+                            United Kingdom · AI Policy Observatory
+                        </p>
+                        <h1 className="text-3xl sm:text-4xl font-semibold text-white tracking-tight leading-tight mb-3">
+                            Track every UK AI regulation,<br className="hidden sm:block" />
+                            strategy and guidance update.
+                        </h1>
+                        <p className="text-sm text-slate-400 leading-relaxed mb-7 max-w-lg">
+                            Sourced continuously from Parliament, DSIT, ICO, CMA, Ofcom, FCA
+                            and all major government departments. Verified against official publications.
+                        </p>
+
+                        {/* Search */}
+                        <form onSubmit={handleSearch} className="flex gap-2 mb-5">
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                    placeholder="Search regulations, strategies, guidance, departments…"
+                                    className="w-full pl-9 pr-4 py-2.5 bg-[#1E293B] border border-[#334155] rounded-md text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-md transition-colors flex-shrink-0"
+                            >
+                                Search
+                            </button>
+                        </form>
+
+                        {/* Quick filters — drive the Latest updates feed below */}
+                        <div className="flex flex-wrap gap-2">
+                            {FILTERS.map(f => (
+                                <button
+                                    key={f}
+                                    onClick={() => setActiveFilter(f)}
+                                    className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
+                                        activeFilter === f
+                                            ? 'bg-primary-600 border-primary-600 text-white'
+                                            : 'border-[#334155] text-slate-400 hover:border-slate-500 hover:text-slate-300 bg-transparent'
+                                    }`}
+                                >
+                                    {f}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Stats band ──────────────────────────────────────────────── */}
+            <div className="bg-white border-b border-slate-200">
+                <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-slate-100">
+                        {[
+                            { label: 'Policies tracked', value: totalPolicies, icon: FileText },
+                            { label: 'Regulations', value: totalReg, icon: AlertCircle },
+                            { label: 'New this month', value: recentThisMonth, icon: TrendingUp },
+                            { label: 'Departments', value: totalDepts, icon: BookOpen },
+                        ].map(({ label, value, icon: Icon }) => (
+                            <div key={label} className="py-4 px-6 flex items-center gap-3">
+                                <Icon className="w-4 h-4 text-slate-300 flex-shrink-0" strokeWidth={1.5} />
+                                <div>
+                                    <div className="text-xl font-semibold text-slate-900 nums-tabular leading-none">{value}</div>
+                                    <div className="text-xs text-slate-500 mt-0.5">{label}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Body ────────────────────────────────────────────────────── */}
+            <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+                {/* Regulator matrix */}
+                <div className="mb-8">
+                    <div className="flex items-baseline justify-between mb-3">
+                        <span className="section-label">Regulatory bodies</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                        {REGULATORS.map(r => (
+                            <Link
+                                key={r.acronym}
+                                href={`/policy-explorer?dept=${encodeURIComponent(r.name)}`}
+                                className="card p-3 hover:border-primary-300 hover:bg-primary-50 transition-colors group"
+                            >
+                                <div className="text-[10px] font-semibold text-primary-700 bg-primary-50 group-hover:bg-primary-100 border border-primary-100 rounded px-1.5 py-0.5 inline-block mb-2 tracking-wide">
+                                    {r.acronym}
+                                </div>
+                                <div className="text-[11px] font-medium text-slate-800 leading-tight mb-1">{r.name}</div>
+                                <div className="text-[10px] text-slate-500 leading-tight">{r.role}</div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Two column: Feed + Sidebar */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    {/* Latest updates feed — 2/3 width */}
+                    <div className="lg:col-span-2">
+                        <div className="flex items-baseline justify-between mb-3">
+                            <span className="section-label">
+                                Latest updates{activeFilter !== 'All' ? ` · ${activeFilter}` : ''}
+                            </span>
+                            <Link href="/policy-explorer" className="text-xs text-primary-600 hover:text-primary-800 flex items-center gap-1">
+                                View all <ArrowRight className="w-3 h-3" />
+                            </Link>
+                        </div>
+
+                        {recentPolicies.length === 0 ? (
+                            <div className="card p-8 text-center text-sm text-slate-500">
+                                No {activeFilter.toLowerCase()} entries found in the current feed.
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                {recentPolicies.map((policy) => (
+                                    <div key={policy.url} className="card card-hover">
+                                        <div className="flex">
+                                            <div className={`w-0.5 ${accentBar[policy.policy_type] ?? 'bg-slate-300'} rounded-l-md flex-shrink-0`} />
+                                            <div className="flex-1 p-4">
+                                                <div className="flex items-start justify-between gap-3 mb-1.5">
+                                                    <h3 className="text-[13px] font-medium text-slate-900 leading-snug">{policy.title}</h3>
+                                                    <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0 nums-tabular mt-0.5">
+                                                        {formatDate(policy.published_date)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                                                    <span className="text-xs font-medium text-primary-700">{policy.dept}</span>
+                                                    {policy.policy_type && (
+                                                        <>
+                                                            <span className="text-slate-300 text-xs">·</span>
+                                                            <span className={getBadgeClass(policy.policy_type)}>
+                                                                {getBadgeLabel(policy.policy_type)}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                    {policy.stage && (
+                                                        <span className="status-badge status-badge--active">{policy.stage}</span>
+                                                    )}
+                                                </div>
+                                                {policy.ai_summary && (
+                                                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                                                        {policy.ai_summary}
+                                                    </p>
+                                                )}
+                                                {policy.url && (
+                                                    <a
+                                                        href={policy.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 mt-2"
+                                                    >
+                                                        View source <ExternalLink className="w-3 h-3" />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Sidebar — 1/3 width */}
+                    <div className="space-y-4">
+
+                        {/* Key milestones: latest real Regulation & Compliance entries */}
+                        <div>
+                            <div className="flex items-baseline justify-between mb-3">
+                                <span className="section-label">Key milestones</span>
+                                <span className="text-xs text-slate-400">Latest regulation</span>
+                            </div>
+                            <div className="card p-4">
+                                <div className="relative">
+                                    <div className="absolute left-[5px] top-2 bottom-2 w-px bg-slate-200" />
+                                    <div className="space-y-5">
+                                        {milestones.map((m, i) => (
+                                            <div key={m.url} className="flex gap-3 relative">
+                                                <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1 relative z-10 ${
+                                                    i === 0 ? 'bg-primary-500' :
+                                                    i === 1 ? 'bg-slate-400' : 'bg-slate-200 border border-slate-300'
+                                                }`} />
+                                                <div>
+                                                    <div className={`text-[10px] font-semibold tracking-wider uppercase mb-0.5 ${
+                                                        i === 0 ? 'text-primary-600' : 'text-slate-400'
+                                                    }`}>
+                                                        {formatDate(m.published_date)} · {m.dept}
+                                                    </div>
+                                                    <a
+                                                        href={m.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-xs font-medium text-slate-800 mb-0.5 leading-snug hover:text-primary-700 block"
+                                                    >
+                                                        {m.title}
+                                                    </a>
+                                                    {m.ai_summary && (
+                                                        <div className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                                                            {m.ai_summary}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="mt-4 pt-3 border-t border-slate-100">
+                                    <Link href="/regulations" className="text-xs text-primary-600 hover:text-primary-800 font-medium">
+                                        View all regulations →
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Recently active count */}
+                        <div className="card p-4">
+                            <div className="section-label mb-3">Recently active</div>
+                            <Link href="/regulations" className="flex items-center justify-between group">
+                                <div>
+                                    <div className="text-2xl font-semibold text-slate-900 nums-tabular leading-none mb-1">
+                                        {activeRecent}
+                                    </div>
+                                    <div className="text-xs text-slate-500">Published in the last 3 months</div>
+                                </div>
+                                <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-primary-600 transition-colors" />
+                            </Link>
+                        </div>
+
+                        {/* Source authorities */}
+                        <div className="card p-4">
+                            <div className="section-label mb-3">Source authorities</div>
+                            <div className="space-y-2">
+                                {[
+                                    { label: 'GOV.UK policy papers', href: 'https://www.gov.uk/search/policy-papers-and-consultations' },
+                                    { label: 'ICO AI guidance hub', href: 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/artificial-intelligence/' },
+                                    { label: 'CMA AI updates', href: 'https://www.gov.uk/cma-cases/ai-foundation-models-review' },
+                                    { label: 'DSIT AI policy', href: 'https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology' },
+                                    { label: 'AISI publications', href: 'https://www.gov.uk/government/organisations/ai-safety-institute' },
+                                ].map(link => (
+                                    <a
+                                        key={link.label}
+                                        href={link.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-between text-xs text-slate-600 hover:text-primary-700 py-1 border-b border-slate-50 last:border-0 group"
+                                    >
+                                        {link.label}
+                                        <ExternalLink className="w-3 h-3 text-slate-300 group-hover:text-primary-500 flex-shrink-0" />
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
