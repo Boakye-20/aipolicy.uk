@@ -42,14 +42,16 @@ try:
 except ImportError:
     pass
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+# .strip() guards against a trailing newline/space getting pasted into a GitHub
+# Actions secret — psycopg otherwise reads "sslmode=require\n" as an invalid value.
+OPENAI_API_KEY = (os.environ.get("OPENAI_API_KEY") or "").strip()
 if not OPENAI_API_KEY:
     sys.exit("ERROR: OPENAI_API_KEY not set. Put it in ingestion/.env or your environment.")
 
 # Use the Neon DIRECT connection (host without "-pooler"). This is a batch job
 # that holds one connection and commits repeatedly — the direct connection, not
 # the serverless pooler, is what that wants.
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = (os.environ.get("DATABASE_URL") or "").strip()
 if not DATABASE_URL:
     sys.exit("ERROR: DATABASE_URL not set. Put it in ingestion/.env or your environment.")
 
