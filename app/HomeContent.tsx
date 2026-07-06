@@ -42,15 +42,21 @@ const accentBar: Record<string, string> = {
     'International Cooperation': 'bg-blue-400',
 };
 
-const REGULATORS = [
-    { acronym: 'ICO',   name: "Information Commissioner's Office", role: 'Data protection & privacy' },
-    { acronym: 'DSIT',  name: 'Department for Science, Innovation and Technology', role: 'AI strategy & policy' },
-    { acronym: 'CMA',   name: 'Competition and Markets Authority', role: 'Competition oversight' },
-    { acronym: 'Ofcom', name: 'Office of Communications', role: 'Media & platforms' },
-    { acronym: 'FCA',   name: 'Financial Conduct Authority', role: 'Financial services AI' },
-    { acronym: 'AISI',  name: 'AI Safety Institute', role: 'Frontier model safety' },
-    { acronym: 'HoC',   name: 'Parliament', role: 'Legislative scrutiny' },
-];
+// Friendly metadata keyed by the department CODE stored in the DB (p.dept).
+// The matrix is built from real data, so anything not listed here still shows
+// (with the code as its name) — but these give the known bodies proper labels.
+const DEPT_META: Record<string, { name: string; role: string }> = {
+    DSIT:           { name: 'Science, Innovation & Technology', role: 'AI strategy & policy' },
+    ICO:            { name: "Information Commissioner's Office", role: 'Data protection & privacy' },
+    CMA:            { name: 'Competition & Markets Authority', role: 'Competition oversight' },
+    FCA:            { name: 'Financial Conduct Authority', role: 'Financial services' },
+    DBT:            { name: 'Business & Trade', role: 'Business & trade' },
+    Cabinet_Office: { name: 'Cabinet Office', role: 'Central government' },
+    Home_Office:    { name: 'Home Office', role: 'Security & policing' },
+    Treasury:       { name: 'HM Treasury', role: 'Economy & finance' },
+    DHSC:           { name: 'Health & Social Care', role: 'Health & care' },
+    DfE:            { name: 'Education', role: 'Education' },
+};
 
 const FILTERS = ['All', 'Regulation', 'Guidance', 'Strategy', 'Consultation', 'Research'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -107,6 +113,24 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
         () => sorted.filter(p => p.policy_type === 'Regulation & Compliance').slice(0, 4),
         [sorted]
     );
+
+    // Departments/regulators built from the actual data, sorted by coverage.
+    // Links carry the department CODE (p.dept), which is exactly what the
+    // explorer's dept filter matches on.
+    const regulators = useMemo(() => {
+        const counts: Record<string, number> = {};
+        for (const p of policies) {
+            if (p.dept) counts[p.dept] = (counts[p.dept] || 0) + 1;
+        }
+        return Object.entries(counts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([dept, count]) => ({
+                dept,
+                count,
+                name: DEPT_META[dept]?.name ?? dept.replace(/_/g, ' '),
+                role: DEPT_META[dept]?.role ?? 'Government department',
+            }));
+    }, [policies]);
 
     // Stats
     const totalPolicies   = policies.length;
@@ -202,20 +226,24 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
             {/* ── Body ────────────────────────────────────────────────────── */}
             <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-                {/* Regulator matrix */}
+                {/* Departments & regulators — built from real data, linked by code */}
                 <div className="mb-8">
                     <div className="flex items-baseline justify-between mb-3">
-                        <span className="section-label">Regulatory bodies</span>
+                        <span className="section-label">Departments &amp; regulators</span>
+                        <span className="text-xs text-slate-400">{regulators.length} sources · click to filter</span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-                        {REGULATORS.map(r => (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                        {regulators.map(r => (
                             <Link
-                                key={r.acronym}
-                                href={`/policy-explorer?dept=${encodeURIComponent(r.name)}`}
+                                key={r.dept}
+                                href={`/policy-explorer?dept=${encodeURIComponent(r.dept)}`}
                                 className="card p-3 hover:border-primary-300 hover:bg-primary-50 transition-colors group"
                             >
-                                <div className="text-[10px] font-semibold text-primary-700 bg-primary-50 group-hover:bg-primary-100 border border-primary-100 rounded px-1.5 py-0.5 inline-block mb-2 tracking-wide">
-                                    {r.acronym}
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                    <span className="text-[10px] font-semibold text-primary-700 bg-primary-50 group-hover:bg-primary-100 border border-primary-100 rounded px-1.5 py-0.5 tracking-wide">
+                                        {r.dept.replace(/_/g, ' ')}
+                                    </span>
+                                    <span className="text-xs font-semibold text-slate-500 nums-tabular">{r.count}</span>
                                 </div>
                                 <div className="text-[11px] font-medium text-slate-800 leading-tight mb-1">{r.name}</div>
                                 <div className="text-[10px] text-slate-500 leading-tight">{r.role}</div>
