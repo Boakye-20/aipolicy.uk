@@ -142,7 +142,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                     </div>
                 ) : (
                     filteredPolicies.map((policy, index) => (
-                        <article key={index} className="rounded-md border border-slate-200 bg-white p-6 transition-colors hover:border-slate-300">
+                        <article key={index} className="rounded-md border border-slate-300 bg-white p-6 transition-colors hover:border-slate-400">
                             <div className="flex items-start justify-between gap-4">
                                 <h3 className="text-base font-semibold leading-snug text-slate-900">{policy.title}</h3>
                                 <span className="whitespace-nowrap text-sm text-slate-500 nums-tabular">
@@ -150,7 +150,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                                 </span>
                             </div>
 
-                            <p className="mt-1 text-xs font-medium text-slate-500">{policy.dept}</p>
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">{policy.dept?.replace(/_/g, ' ')}</p>
 
                             <p className="mt-3 text-sm leading-relaxed text-slate-700">{policy.ai_summary}</p>
 

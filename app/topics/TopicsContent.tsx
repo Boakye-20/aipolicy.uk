@@ -187,10 +187,10 @@ export default function TopicsContent({ initialPolicies }: { initialPolicies: Po
             <button
               key={topic}
               onClick={() => { setSelectedTopic(topic); setCurrentPage(1); }}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${
                 selectedTopic === topic
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-slate-900 border-slate-900 text-white'
+                  : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50'
               }`}
             >
               {topic} <span className="nums-tabular opacity-70">({count})</span>
@@ -218,7 +218,7 @@ export default function TopicsContent({ initialPolicies }: { initialPolicies: Po
         <h3 className="text-sm font-semibold text-slate-900 mb-4">Top topic by department</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {deptTopics.map(({ dept, topTopic, count, totalTopics }) => (
-            <div key={dept} className="rounded-md border border-slate-200 bg-slate-50 p-4">
+            <div key={dept} className="rounded-md border border-slate-300 bg-white p-4">
               <h4 className="font-semibold text-slate-900 mb-2">{dept.replace(/_/g, ' ')}</h4>
               <p className="text-sm text-slate-600 mb-1">
                 Top topic: <span className="font-medium text-primary-600">{topTopic}</span>
@@ -287,7 +287,7 @@ export default function TopicsContent({ initialPolicies }: { initialPolicies: Po
                   href={policy.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block rounded-md border border-slate-200 p-4 hover:border-primary-300 hover:bg-slate-50 transition-colors"
+                  className="group block rounded-md border border-slate-300 p-4 hover:border-slate-400 hover:bg-slate-50 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
@@ -296,8 +296,8 @@ export default function TopicsContent({ initialPolicies }: { initialPolicies: Po
                         <ExternalLink className="inline-block w-4 h-4 ml-1 text-slate-400 group-hover:text-primary-600" />
                       </h4>
                       <div className="flex flex-wrap gap-2 mb-2">
-                        <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded">{policy.dept}</span>
-                        <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded">{policy.policy_type}</span>
+                        <span className="px-2 py-0.5 border border-slate-300 bg-white text-slate-700 text-xs font-medium rounded">{policy.dept?.replace(/_/g, ' ')}</span>
+                        <span className="px-2 py-0.5 border border-slate-300 bg-white text-slate-700 text-xs font-medium rounded">{policy.policy_type}</span>
                       </div>
                       <p className="text-sm text-slate-600 line-clamp-2">{policy.ai_summary || policy.description}</p>
                     </div>

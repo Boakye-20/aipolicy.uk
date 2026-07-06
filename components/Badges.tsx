@@ -14,19 +14,20 @@ const POLICY_TYPE_DOT: Record<string, string> = {
 };
 
 export function PolicyTypeBadge({ type }: { type: string }) {
-    const dot = POLICY_TYPE_DOT[type] || 'bg-slate-400';
+    const dot = POLICY_TYPE_DOT[type] || 'bg-slate-500';
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700">
+        <span className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-white px-2 py-0.5 text-xs font-semibold text-slate-800">
             <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
             {type}
         </span>
     );
 }
 
-// Plain neutral chip for department / sector / AI application / topics.
+// Sharp, outlined chip for department / sector / topics — defined border and
+// darker text so tags read as deliberate labels, government-page style.
 export function NeutralBadge({ children }: { children: React.ReactNode }) {
     return (
-        <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-600">
+        <span className="inline-flex items-center rounded border border-slate-300 bg-white px-2 py-0.5 text-xs font-medium text-slate-700">
             {children}
         </span>
     );
