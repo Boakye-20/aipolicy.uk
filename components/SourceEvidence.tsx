@@ -30,7 +30,7 @@ export default function SourceEvidence({ policy }: { policy: Policy }) {
                 type="button"
                 onClick={() => setOpen((v) => !v)}
                 aria-expanded={open}
-                className="w-full flex items-center justify-between gap-2 text-left"
+                className="group w-full flex items-center justify-between gap-2 text-left"
             >
                 <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
                     <ShieldCheck className="w-4 h-4 text-slate-400" />
@@ -41,9 +41,11 @@ export default function SourceEvidence({ policy }: { policy: Policy }) {
                         </span>
                     )}
                 </span>
-                {open
-                    ? <ChevronUp className="w-4 h-4 text-slate-500" />
-                    : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border border-slate-300 bg-slate-50 text-slate-900 group-hover:bg-slate-100">
+                    {open
+                        ? <ChevronUp className="w-4 h-4" strokeWidth={2.5} />
+                        : <ChevronDown className="w-4 h-4" strokeWidth={2.5} />}
+                </span>
             </button>
 
             {open && (

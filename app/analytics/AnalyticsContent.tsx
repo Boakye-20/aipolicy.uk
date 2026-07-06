@@ -27,8 +27,8 @@ const COLORS = {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
-                <p className="font-semibold text-gray-900">{label}</p>
+            <div className="bg-white p-4 border border-slate-200 rounded-lg shadow-lg">
+                <p className="font-semibold text-slate-900">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <p key={`tooltip-${index}`} style={{ color: entry.color }}>
                         {entry.name}: {entry.value}
@@ -71,8 +71,8 @@ const renderCustomTooltip = (props: any) => {
     const { active, payload, label } = props;
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-                <p className="font-semibold text-gray-900 mb-2">{label}</p>
+            <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
+                <p className="font-semibold text-slate-900 mb-2">{label}</p>
                 <div className="space-y-1">
                     {payload.map((entry: any, index: number) => (
                         <div key={`tooltip-item-${index}`} className="flex items-center">
@@ -240,27 +240,27 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
     const regulationsPercent = ((regulationsCount / policies.length) * 100).toFixed(1);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Analytics &amp; Insights</h1>
-                <p className="mt-2 text-gray-600">Comprehensive analysis of AI policy trends and metrics</p>
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900">Analytics &amp; insights</h1>
+                <p className="mt-1 text-sm text-slate-600">Comprehensive analysis of AI policy trends and metrics.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                         <div>
-                            <div className="flex items-center text-gray-600 mb-2">
+                            <div className="flex items-center text-slate-600 mb-2">
                                 <Activity className="w-5 h-5 mr-2" />
                                 <span className="text-sm font-medium">Publication Trend</span>
                             </div>
                             <div className="flex items-baseline">
-                                <p className="text-3xl font-bold text-gray-900">
+                                <p className="text-3xl font-bold text-slate-900">
                                     {trend.direction === 'up' ? '+' : trend.direction === 'down' ? '−' : ''}{trend.percentage}%
                                 </p>
-                                <span className="ml-2 text-sm text-gray-500">vs previous period</span>
+                                <span className="ml-2 text-sm text-slate-500">vs previous period</span>
                             </div>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm text-slate-500 mt-1">
                                 {trend.recentCount} policies in last {trend.period} · {trend.direction === 'up' ? '↑' : '↓'} from {trend.previousCount} before
                             </p>
                         </div>
@@ -270,15 +270,15 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                         <div>
-                            <div className="flex items-center text-gray-600 mb-2">
+                            <div className="flex items-center text-slate-600 mb-2">
                                 <Shield className="w-5 h-5 mr-2" />
                                 <span className="text-sm font-medium">Regulatory Activity</span>
                             </div>
-                            <p className="text-3xl font-bold text-gray-900">{regulationsCount}</p>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-3xl font-bold text-slate-900">{regulationsCount}</p>
+                            <p className="text-sm text-slate-500 mt-1">
                                 {regulationsPercent}% of all policies · {policies.filter(p => p.policy_type === 'Regulation & Compliance' && new Date(p.published_date) >= new Date(new Date().setMonth(new Date().getMonth() - 6))).length} in last 6 months
                             </p>
                         </div>
@@ -288,15 +288,15 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                         <div>
-                            <div className="flex items-center text-gray-600 mb-2">
+                            <div className="flex items-center text-slate-600 mb-2">
                                 <BarChart2 className="w-5 h-5 mr-2" />
                                 <span className="text-sm font-medium">Policy Distribution</span>
                             </div>
-                            <p className="text-3xl font-bold text-gray-900">{policyTypeBreakdown[0]?.value || 0}</p>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-3xl font-bold text-slate-900">{policyTypeBreakdown[0]?.value || 0}</p>
+                            <p className="text-sm text-slate-500 mt-1">
                                 {policyTypeBreakdown[0]?.name || 'N/A'} policies · {policies.length} total
                             </p>
                             <div className="mt-2 flex -space-x-1">
@@ -312,17 +312,17 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-slate-200">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Publications Over Time</h3>
-                        <p className="text-sm text-gray-500">Number of policies published by type (last 18 months)</p>
+                        <h3 className="text-lg font-semibold text-slate-900">Publications Over Time</h3>
+                        <p className="text-sm text-slate-500">Number of policies published by type (last 18 months)</p>
                     </div>
                     <div className="mt-2 sm:mt-0 flex space-x-2">
                         {[['bg-red-500', 'Regulations'], ['bg-blue-500', 'Strategic'], ['bg-green-500', 'Research'], ['bg-cyan-500', 'Guidance']].map(([color, label]) => (
                             <div key={label} className="flex items-center">
                                 <div className={`w-3 h-3 rounded-full ${color} mr-1`}></div>
-                                <span className="text-xs text-gray-600">{label}</span>
+                                <span className="text-xs text-slate-600">{label}</span>
                             </div>
                         ))}
                     </div>
@@ -349,14 +349,14 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="text-xs text-gray-500 text-right mt-2">Hover over the chart for detailed information</div>
+                <div className="text-xs text-slate-500 text-right mt-2">Hover over the chart for detailed information</div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                     <div className="mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Policy Type Distribution</h3>
-                        <p className="text-sm text-gray-500">Breakdown of policies by their primary type</p>
+                        <h3 className="text-lg font-semibold text-slate-900">Policy Type Distribution</h3>
+                        <p className="text-sm text-slate-500">Breakdown of policies by their primary type</p>
                     </div>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -373,10 +373,10 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                     <div className="mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Top Sectors by Policy Count</h3>
-                        <p className="text-sm text-gray-500">Most active sectors in AI policy development</p>
+                        <h3 className="text-lg font-semibold text-slate-900">Top Sectors by Policy Count</h3>
+                        <p className="text-sm text-slate-500">Most active sectors in AI policy development</p>
                     </div>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -388,10 +388,10 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                                     if (active && payload && payload.length) {
                                         const data = payload[0].payload;
                                         return (
-                                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                                            <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
                                                 <p className="font-semibold">{data.fullName || data.sector}</p>
                                                 <p className="text-sm">{payload[0].value} policies</p>
-                                                <p className="text-xs text-gray-500">{((data.count / policies.length) * 100).toFixed(1)}% of total</p>
+                                                <p className="text-xs text-slate-500">{((data.count / policies.length) * 100).toFixed(1)}% of total</p>
                                             </div>
                                         );
                                     }
@@ -409,10 +409,10 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                     <div className="mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Department Activity</h3>
-                        <p className="text-sm text-gray-500">Policies published by top departments (last 12 months)</p>
+                        <h3 className="text-lg font-semibold text-slate-900">Department Activity</h3>
+                        <p className="text-sm text-slate-500">Policies published by top departments (last 12 months)</p>
                     </div>
                     <div className="h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -430,10 +430,10 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                     <div className="mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Regulations by Sector</h3>
-                        <p className="text-sm text-gray-500">Sectors with the most regulatory activity</p>
+                        <h3 className="text-lg font-semibold text-slate-900">Regulations by Sector</h3>
+                        <p className="text-sm text-slate-500">Sectors with the most regulatory activity</p>
                     </div>
                     <div className="h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -445,10 +445,10 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                                     if (active && payload && payload.length) {
                                         const data = payload[0].payload;
                                         return (
-                                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                                            <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
                                                 <p className="font-semibold">{data.fullName || data.sector}</p>
                                                 <p className="text-sm">{payload[0].value} regulations</p>
-                                                <p className="text-xs text-gray-500">{((data.count / regulationsCount) * 100).toFixed(1)}% of all regulations</p>
+                                                <p className="text-xs text-slate-500">{((data.count / regulationsCount) * 100).toFixed(1)}% of all regulations</p>
                                             </div>
                                         );
                                     }
@@ -472,7 +472,7 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">Key Insights</h3>
+                    <h3 className="text-lg font-semibold text-slate-900">Key Insights</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -504,8 +504,8 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                                     <div className={`w-2 h-2 rounded-full ${insight.color}`}></div>
                                 </div>
                                 <div className="ml-3">
-                                    <p className="text-sm font-medium text-gray-900">{insight.title}</p>
-                                    <p className="text-sm text-gray-600">{insight.text}</p>
+                                    <p className="text-sm font-medium text-slate-900">{insight.title}</p>
+                                    <p className="text-sm text-slate-600">{insight.text}</p>
                                 </div>
                             </div>
                         </div>

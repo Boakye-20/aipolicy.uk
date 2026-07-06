@@ -58,14 +58,16 @@ const DEPT_META: Record<string, { name: string; role: string }> = {
     DfE:            { name: 'Education', role: 'Education' },
 };
 
-const FILTERS = ['All', 'Regulation', 'Guidance', 'Strategy', 'Consultation', 'Research'] as const;
+const FILTERS = ['All', 'Regulation', 'Guidance', 'Strategy', 'Consultation', 'Research', 'Funding', 'International'] as const;
 type Filter = (typeof FILTERS)[number];
 
 const FILTER_TO_TYPE: Partial<Record<Filter, string>> = {
-    Regulation: 'Regulation & Compliance',
-    Guidance:   'Implementation Guidance',
-    Strategy:   'Strategy & Frameworks',
-    Research:   'Research & Analysis',
+    Regulation:    'Regulation & Compliance',
+    Guidance:      'Implementation Guidance',
+    Strategy:      'Strategy & Frameworks',
+    Research:      'Research & Analysis',
+    Funding:       'Funding & Investment',
+    International:  'International Cooperation',
 };
 
 function matchesFilter(p: Policy, filter: Filter): boolean {
