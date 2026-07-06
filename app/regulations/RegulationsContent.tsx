@@ -5,7 +5,7 @@ import { Policy } from '@/types/policy';
 import { formatDate } from '@/lib/utils';
 import { Shield, Clock, ExternalLink, Building2 } from 'lucide-react';
 import SourceEvidence from '@/components/SourceEvidence';
-import { PolicyTypeBadge, StageBadge, NeutralBadge } from '@/components/Badges';
+import { PolicyTypeBadge, NeutralBadge } from '@/components/Badges';
 
 interface RegulationsContentProps {
     initialPolicies: Policy[];
@@ -161,8 +161,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
 
                             <SourceEvidence policy={policy} />
 
-                            <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4">
-                                {policy.stage && <StageBadge stage={policy.stage} />}
+                            <div className="mt-4 flex items-center justify-end border-t border-slate-200 pt-4">
                                 <a
                                     href={policy.url}
                                     target="_blank"

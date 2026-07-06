@@ -13,29 +13,12 @@ const POLICY_TYPE_DOT: Record<string, string> = {
     'International Cooperation': 'bg-emerald-500',
 };
 
-const STAGE_DOT: Record<string, string> = {
-    Active: 'bg-emerald-500',
-    Proposed: 'bg-amber-500',
-    'Under Review': 'bg-blue-500',
-    Historical: 'bg-slate-400',
-};
-
 export function PolicyTypeBadge({ type }: { type: string }) {
     const dot = POLICY_TYPE_DOT[type] || 'bg-slate-400';
     return (
         <span className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700">
             <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
             {type}
-        </span>
-    );
-}
-
-export function StageBadge({ stage }: { stage: string }) {
-    const dot = STAGE_DOT[stage] || 'bg-slate-400';
-    return (
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700">
-            <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-            {stage}
         </span>
     );
 }

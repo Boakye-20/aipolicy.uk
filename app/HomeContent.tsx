@@ -295,9 +295,6 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                                                             </span>
                                                         </>
                                                     )}
-                                                    {policy.stage && (
-                                                        <span className="status-badge status-badge--active">{policy.stage}</span>
-                                                    )}
                                                 </div>
                                                 {policy.ai_summary && (
                                                     <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">

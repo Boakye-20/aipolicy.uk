@@ -5,7 +5,7 @@ import { Policy } from '@/types/policy';
 import { formatDate } from '@/lib/utils';
 import { Search, Download, ExternalLink } from 'lucide-react';
 import SourceEvidence from '@/components/SourceEvidence';
-import { PolicyTypeBadge, StageBadge, NeutralBadge } from '@/components/Badges';
+import { PolicyTypeBadge, NeutralBadge } from '@/components/Badges';
 
 interface PolicyExplorerContentProps {
     initialPolicies: Policy[];
@@ -20,7 +20,6 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
         policyType: '',
         sector: '',
         aiApplication: '',
-        stage: '',
         dateFrom: '',
         dateTo: '',
     });
@@ -45,7 +44,6 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
         if (filters.policyType) filtered = filtered.filter(p => p.policy_type === filters.policyType);
         if (filters.sector) filtered = filtered.filter(p => p.sector_focus === filters.sector);
         if (filters.aiApplication) filtered = filtered.filter(p => p.ai_application === filters.aiApplication);
-        if (filters.stage) filtered = filtered.filter(p => p.stage === filters.stage);
         if (filters.dateFrom) filtered = filtered.filter(p => new Date(p.published_date) >= new Date(filters.dateFrom));
         if (filters.dateTo) filtered = filtered.filter(p => new Date(p.published_date) <= new Date(filters.dateTo));
 
@@ -60,7 +58,7 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
 
     const clearFilters = () => {
         setSearchTerm('');
-        setFilters({ dept: '', policyType: '', sector: '', aiApplication: '', stage: '', dateFrom: '', dateTo: '' });
+        setFilters({ dept: '', policyType: '', sector: '', aiApplication: '', dateFrom: '', dateTo: '' });
     };
 
     const filteredPolicies = applyFilters();
@@ -87,7 +85,6 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
     const policyTypes = [...new Set(initialPolicies.map(p => p.policy_type))].sort();
     const sectors = [...new Set(initialPolicies.map(p => p.sector_focus))].sort();
     const aiApplications = [...new Set(initialPolicies.map(p => p.ai_application))].sort();
-    const stages = [...new Set(initialPolicies.map(p => p.stage).filter(Boolean))].sort();
 
     const lastUpdated = (() => {
         const times = initialPolicies.map(p => new Date(p.published_date).getTime()).filter(t => !isNaN(t));
@@ -147,10 +144,6 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
                     <option value="">All applications</option>
                     {aiApplications.map(app => <option key={app} value={app}>{app}</option>)}
                 </select>
-                <select value={filters.stage} onChange={(e) => setFilters({ ...filters, stage: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                    <option value="">All stages</option>
-                    {stages.map(stage => <option key={stage} value={stage}>{stage}</option>)}
-                </select>
                 <input type="date" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
                 <input type="date" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
                 <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
@@ -193,8 +186,7 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
 
                         <SourceEvidence policy={policy} />
 
-                        <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4">
-                            {policy.stage && <StageBadge stage={policy.stage} />}
+                        <div className="mt-4 flex items-center justify-end border-t border-slate-200 pt-4">
                             <a href={policy.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
                                 View document <ExternalLink className="w-4 h-4" />
                             </a>
