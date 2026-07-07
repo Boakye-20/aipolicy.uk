@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Policy } from '@/types/policy';
 import { formatDate } from '@/lib/utils';
 import { Shield, Clock, ExternalLink, Building2 } from 'lucide-react';
-import { PolicyTypeBadge, NeutralBadge, DocumentTypeBadge, documentTypeLabel } from '@/components/Badges';
+import { PolicyTypeBadge, NeutralBadge, DocumentTypeBadge } from '@/components/Badges';
 
 interface RegulationsContentProps {
     initialPolicies: Policy[];
@@ -13,7 +13,6 @@ interface RegulationsContentProps {
 export default function RegulationsContent({ initialPolicies }: RegulationsContentProps) {
     const [filterDept, setFilterDept] = useState('');
     const [filterSector, setFilterSector] = useState('');
-    const [filterDocType, setFilterDocType] = useState('');
     const [filterRecency, setFilterRecency] = useState('');
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
@@ -24,7 +23,6 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
 
         if (filterDept) filtered = filtered.filter(p => p.dept === filterDept);
         if (filterSector) filtered = filtered.filter(p => p.sector_focus === filterSector);
-        if (filterDocType) filtered = filtered.filter(p => documentTypeLabel(p.format)?.label === filterDocType);
         if (filterRecency) filtered = filtered.filter(p => p.recency === filterRecency);
         if (dateFrom) filtered = filtered.filter(p => new Date(p.published_date) >= new Date(dateFrom));
         if (dateTo) filtered = filtered.filter(p => new Date(p.published_date) <= new Date(dateTo));
@@ -39,9 +37,6 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
     const filteredPolicies = getFilteredPolicies();
     const departments = [...new Set(initialPolicies.map(p => p.dept))].sort();
     const sectors = [...new Set(initialPolicies.map(p => p.sector_focus))].sort();
-    const documentTypes = Array.from(new Set(
-        initialPolicies.map(p => documentTypeLabel(p.format)?.label).filter((l): l is string => !!l)
-    )).sort();
     const recencyOptions = ['Last month', 'Last 3 months', 'Last 6 months', 'Last year'];
 
     const recentRegulations = initialPolicies.filter(p =>
@@ -91,14 +86,6 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                     {sectors.map(sector => <option key={sector} value={sector}>{sector}</option>)}
                 </select>
                 <select
-                    value={filterDocType}
-                    onChange={(e) => setFilterDocType(e.target.value)}
-                    className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                >
-                    <option value="">All document types</option>
-                    {documentTypes.map(dt => <option key={dt} value={dt}>{dt}</option>)}
-                </select>
-                <select
                     value={filterRecency}
                     onChange={(e) => setFilterRecency(e.target.value)}
                     className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
@@ -128,9 +115,9 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                     <option value="newest">Newest first</option>
                     <option value="oldest">Oldest first</option>
                 </select>
-                {(filterDept || filterSector || filterDocType || filterRecency || dateFrom || dateTo) && (
+                {(filterDept || filterSector || filterRecency || dateFrom || dateTo) && (
                     <button
-                        onClick={() => { setFilterDept(''); setFilterSector(''); setFilterDocType(''); setFilterRecency(''); setDateFrom(''); setDateTo(''); }}
+                        onClick={() => { setFilterDept(''); setFilterSector(''); setFilterRecency(''); setDateFrom(''); setDateTo(''); }}
                         className="text-sm text-primary-600 hover:text-primary-700"
                     >
                         Clear
