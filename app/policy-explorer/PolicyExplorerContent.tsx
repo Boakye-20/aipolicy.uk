@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Policy } from '@/types/policy';
 import { formatDate } from '@/lib/utils';
 import { Search, Download, ExternalLink } from 'lucide-react';
-import { PolicyTypeBadge, NeutralBadge, DocumentTypeBadge } from '@/components/Badges';
+import { PolicyTypeBadge, NeutralBadge, DocumentTypeBadge, documentTypeLabel } from '@/components/Badges';
 
 interface PolicyExplorerContentProps {
     initialPolicies: Policy[];
@@ -18,7 +18,7 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
         dept: initialDept,
         policyType: '',
         sector: '',
-        aiApplication: '',
+        documentType: '',
         dateFrom: '',
         dateTo: '',
     });
@@ -42,7 +42,7 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
         if (filters.dept) filtered = filtered.filter(p => p.dept === filters.dept);
         if (filters.policyType) filtered = filtered.filter(p => p.policy_type === filters.policyType);
         if (filters.sector) filtered = filtered.filter(p => p.sector_focus === filters.sector);
-        if (filters.aiApplication) filtered = filtered.filter(p => p.ai_application === filters.aiApplication);
+        if (filters.documentType) filtered = filtered.filter(p => documentTypeLabel(p.format)?.label === filters.documentType);
         if (filters.dateFrom) filtered = filtered.filter(p => new Date(p.published_date) >= new Date(filters.dateFrom));
         if (filters.dateTo) filtered = filtered.filter(p => new Date(p.published_date) <= new Date(filters.dateTo));
 
@@ -57,7 +57,7 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
 
     const clearFilters = () => {
         setSearchTerm('');
-        setFilters({ dept: '', policyType: '', sector: '', aiApplication: '', dateFrom: '', dateTo: '' });
+        setFilters({ dept: '', policyType: '', sector: '', documentType: '', dateFrom: '', dateTo: '' });
     };
 
     const filteredPolicies = applyFilters();
@@ -83,7 +83,9 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
     const departments = [...new Set(initialPolicies.map(p => p.dept))].sort();
     const policyTypes = [...new Set(initialPolicies.map(p => p.policy_type))].sort();
     const sectors = [...new Set(initialPolicies.map(p => p.sector_focus))].sort();
-    const aiApplications = [...new Set(initialPolicies.map(p => p.ai_application))].sort();
+    const documentTypes = Array.from(new Set(
+        initialPolicies.map(p => documentTypeLabel(p.format)?.label).filter((l): l is string => !!l)
+    )).sort();
 
     const lastUpdated = (() => {
         const times = initialPolicies.map(p => new Date(p.published_date).getTime()).filter(t => !isNaN(t));
@@ -139,9 +141,9 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
                     <option value="">All sectors</option>
                     {sectors.map(sector => <option key={sector} value={sector}>{sector}</option>)}
                 </select>
-                <select value={filters.aiApplication} onChange={(e) => setFilters({ ...filters, aiApplication: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                    <option value="">All applications</option>
-                    {aiApplications.map(app => <option key={app} value={app}>{app}</option>)}
+                <select value={filters.documentType} onChange={(e) => setFilters({ ...filters, documentType: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                    <option value="">All document types</option>
+                    {documentTypes.map(dt => <option key={dt} value={dt}>{dt}</option>)}
                 </select>
                 <input type="date" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
                 <input type="date" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />

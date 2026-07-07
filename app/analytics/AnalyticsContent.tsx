@@ -7,6 +7,7 @@ import {
     ResponsiveContainer, Cell, PieChart, Pie, Sector
 } from 'recharts';
 import { TrendingUp, Shield, BarChart2, PieChart as PieChartIcon, Activity } from 'lucide-react';
+import { documentTypeLabel } from '@/components/Badges';
 
 interface AnalyticsContentProps {
     initialPolicies: Policy[];
@@ -211,6 +212,15 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
         return result;
     };
 
+    const getDocumentTypeBreakdown = () => {
+        const acc = policies.reduce((a, p) => {
+            const label = documentTypeLabel(p.format)?.label;
+            if (label) a[label] = (a[label] || 0) + 1;
+            return a;
+        }, {} as Record<string, number>);
+        return Object.entries(acc).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 12);
+    };
+
     const calculateTrend = () => {
         const timeline = getTimelineData();
         if (timeline.length < 2) return { direction: 'stable', percentage: 0, recentCount: 0, previousCount: 0, period: '3 months' };
@@ -235,6 +245,7 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
     const departmentActivity = getDepartmentActivity();
     const sectorTrends = getSectorTrends();
     const regulationsBySector = getRegulationsBySector();
+    const documentTypeBreakdown = getDocumentTypeBreakdown();
     const trend = calculateTrend();
     const regulationsCount = policies.filter(p => p.policy_type === 'Regulation & Compliance').length;
     const regulationsPercent = ((regulationsCount / policies.length) * 100).toFixed(1);
@@ -462,6 +473,24 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-slate-200">
+                <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-slate-900">Document Types</h3>
+                    <p className="text-sm text-slate-500">What kinds of documents make up the record (from GOV.UK metadata)</p>
+                </div>
+                <div className="h-[380px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={documentTypeBreakdown} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid horizontal={true} vertical={false} strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={false} axisLine={false} />
+                            <YAxis dataKey="name" type="category" width={160} tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={false} axisLine={false} />
+                            <Tooltip content={renderCustomTooltip} cursor={{ fill: '#f8fafc' }} />
+                            <Bar dataKey="value" name="Documents" fill="#334155" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
 

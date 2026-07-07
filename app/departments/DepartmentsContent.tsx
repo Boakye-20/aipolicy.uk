@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Policy } from '@/types/policy';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Building2, FileText, Shield, TrendingUp } from 'lucide-react';
+import { documentTypeLabel } from '@/components/Badges';
 
 interface DepartmentsContentProps {
     initialPolicies: Policy[];
@@ -82,8 +83,9 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
             return acc;
         }, {} as Record<string, number>);
 
-        const applications = deptPolicies.reduce((acc, p) => {
-            acc[p.ai_application] = (acc[p.ai_application] || 0) + 1;
+        const docTypes = deptPolicies.reduce((acc, p) => {
+            const label = documentTypeLabel(p.format)?.label;
+            if (label) acc[label] = (acc[label] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 
@@ -97,7 +99,7 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
             policyTypes: policyTypesWithShortNames,
             timeline: Object.entries(timeline).map(([period, count]) => ({ period, count })).sort((a, b) => a.period.localeCompare(b.period)).slice(-12),
             sectors: Object.entries(sectors).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
-            applications: Object.entries(applications).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
+            documentTypes: Object.entries(docTypes).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6),
         };
     };
 
@@ -216,12 +218,12 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
                     </div>
 
                     <div>
-                        <h3 className="mb-4 text-sm font-semibold text-slate-900">AI applications</h3>
+                        <h3 className="mb-4 text-sm font-semibold text-slate-900">Document types</h3>
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={selectedData.applications} layout="vertical" margin={{ left: 10 }}>
+                            <BarChart data={selectedData.documentTypes} layout="vertical" margin={{ left: 10 }}>
                                 <CartesianGrid horizontal={false} stroke="#e2e8f0" />
                                 <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} />
-                                <YAxis dataKey="name" type="category" width={130} tick={{ fontSize: 12, fill: '#475569' }} />
+                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#475569' }} />
                                 <Tooltip cursor={{ fill: '#f1f5f9' }} />
                                 <Bar dataKey="value" fill="#2563eb" radius={[0, 3, 3, 0]} />
                             </BarChart>
