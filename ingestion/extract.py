@@ -148,8 +148,12 @@ class PolicyExtraction(BaseModel):
 
     core_obligations: List[str] = Field(
         max_length=3,
-        description=("Up to 3 obligations EXPLICITLY stated in the text, each under 20 words. "
-                     "Empty list if none. Never invent obligations."))
+        description=("Concrete obligations the document EXPLICITLY imposes on an organisation "
+                     "— a required action, duty, deadline, or prohibition — each under 20 words. "
+                     "Include ONLY genuine requirements, NOT policy aims, goals or aspirations "
+                     "(e.g. 'promote fair competition' or 'support growth' are NOT obligations). "
+                     "Most documents impose 0-1; return an empty list when there are none. "
+                     "Do NOT pad the list to three. Never invent obligations."))
 
     source_quote: Optional[str] = Field(
         default=None,
@@ -577,6 +581,10 @@ def extract(doc: dict) -> Optional[PolicyExtraction]:
                 {"role": "system", "content":
                     ("You are a regulatory data extraction engine for UK AI policy. "
                      "Extract ONLY what is explicitly stated. Do not infer or embellish. "
+                     "For core_obligations, list only concrete requirements the document "
+                     "imposes on an organisation (an action, duty, deadline or prohibition), "
+                     "never policy aims or goals, and never pad the list — an empty list is "
+                     "correct when the document imposes no obligations. "
                      "The source_quote must be copied verbatim from the text provided.")},
                 {"role": "user", "content":
                     f"Title: {title}\nURL: {url}\n\nSource text:\n{source_text}"},

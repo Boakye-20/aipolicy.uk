@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { Policy } from '@/types/policy';
 import { formatDate } from '@/lib/utils';
 import { Search, Download, ExternalLink } from 'lucide-react';
-import SourceEvidence from '@/components/SourceEvidence';
-import { PolicyTypeBadge, NeutralBadge } from '@/components/Badges';
+import { PolicyTypeBadge, NeutralBadge, DocumentTypeBadge } from '@/components/Badges';
 
 interface PolicyExplorerContentProps {
     initialPolicies: Policy[];
@@ -181,10 +180,9 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
 
                         <div className="mt-3 flex flex-wrap gap-1.5">
                             <PolicyTypeBadge type={policy.policy_type} />
+                            <DocumentTypeBadge format={policy.format} />
                             {policy.sector_focus && <NeutralBadge>{policy.sector_focus}</NeutralBadge>}
                         </div>
-
-                        <SourceEvidence policy={policy} />
 
                         <div className="mt-4 flex items-center justify-end border-t border-slate-200 pt-4">
                             <a href={policy.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
