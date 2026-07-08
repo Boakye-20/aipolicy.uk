@@ -127,7 +127,7 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
             </div>
 
             <div className="mb-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-end gap-2">
                     <select value={filters.dept} onChange={(e) => setFilters({ ...filters, dept: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
                         <option value="">All departments</option>
                         {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
@@ -144,8 +144,14 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
                         <option value="">All document types</option>
                         {documentCategories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <input type="date" aria-label="Published from" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
-                    <input type="date" aria-label="Published to" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
+                    <label className="flex flex-col">
+                        <span className="mb-1 px-0.5 text-[11px] font-medium text-slate-500">Published from</span>
+                        <input type="date" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
+                    </label>
+                    <label className="flex flex-col">
+                        <span className="mb-1 px-0.5 text-[11px] font-medium text-slate-500">Published to</span>
+                        <input type="date" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
+                    </label>
                     <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
                         <option value="newest">Newest first</option>
                         <option value="oldest">Oldest first</option>

@@ -135,16 +135,13 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
                         </div>
                         <div className="space-y-3">
                             {deptStats.map((stat, index) => (
-                                <div key={index} className="flex items-center">
-                                    <div className="w-28 truncate text-sm font-medium text-slate-700">{stat.dept}</div>
-                                    <div className="mx-3 flex-1">
-                                        <div className="h-5 rounded bg-slate-100">
-                                            <div className="flex h-5 items-center justify-end rounded bg-primary-500 pr-2" style={{ width: `${Math.max(Number(stat.regulationPercent), 6)}%` }}>
-                                                <span className="text-xs font-medium text-white nums-tabular">{stat.regulationPercent}%</span>
-                                            </div>
-                                        </div>
+                                <div key={index} className="flex items-center gap-2.5">
+                                    <div className="w-24 sm:w-28 shrink-0 truncate text-sm font-medium text-slate-700">{stat.dept.replace(/_/g, ' ')}</div>
+                                    <div className="h-2.5 flex-1 rounded-full bg-slate-100">
+                                        <div className="h-2.5 rounded-full bg-primary-500" style={{ width: `${Math.max(Number(stat.regulationPercent), 2)}%` }} />
                                     </div>
-                                    <div className="w-16 text-right text-sm text-slate-500 nums-tabular">{stat.regulations}/{stat.total}</div>
+                                    <div className="w-9 shrink-0 text-right text-xs font-semibold text-slate-700 nums-tabular">{stat.regulationPercent}%</div>
+                                    <div className="w-12 shrink-0 text-right text-xs text-slate-500 nums-tabular">{stat.regulations}/{stat.total}</div>
                                 </div>
                             ))}
                         </div>
