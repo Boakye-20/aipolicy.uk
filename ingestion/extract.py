@@ -212,7 +212,8 @@ def fetch_documents(dept_slug: str, since: str) -> list[dict]:
             "order": "-public_timestamp",
             "count": _PAGE_SIZE,
             "start": start,
-            "fields[]": ["title", "description", "public_timestamp", "link", "format", "organisations"],
+            "fields[]": ["title", "description", "public_timestamp", "link", "format",
+                          "content_store_document_type", "organisations"],
         }
         try:
             r = requests.get(GOV_UK_SEARCH, params=params, timeout=30)
@@ -236,6 +237,12 @@ def fetch_documents(dept_slug: str, since: str) -> list[dict]:
         link = d.get("link", "")
         if link.startswith("/"):
             d["link"] = "https://www.gov.uk" + link
+        # Prefer the precise content-store document type (policy_paper,
+        # guidance, press_release, ...) over the legacy search "format" field,
+        # which can be a coarse catch-all like "publication". The frontend's
+        # document-type badges, filters and Regulations status column all key
+        # off this value.
+        d["format"] = d.get("content_store_document_type") or d.get("format", "")
 
     relevant = [
         d for d in results
@@ -815,6 +822,47 @@ def _process_doc(holder: _ConnHolder, doc: dict, seen: set, counts: dict) -> Non
     time.sleep(0.4)
 
 
+def refresh_open_consultations(conn) -> None:
+    """Re-check stored open consultations/calls for evidence against the
+    GOV.UK content API and flip the document type once the window closes.
+
+    HTTP only, no LLM cost. Needed because GOV.UK does not reliably bump
+    public_timestamp when a consultation closes, so the date-window sweep can
+    miss the open -> closed transition and the site would keep showing a stale
+    "open consultation" status."""
+    with conn.cursor() as cur:
+        cur.execute(
+            'select id, url from "Policy" '
+            'where "format" in (\'open_consultation\', \'call_for_evidence\') '
+            'and url like \'%gov.uk%\''
+        )
+        rows = cur.fetchall()
+    if not rows:
+        return
+    log.info(f"Re-checking {len(rows)} stored open consultations for closure...")
+    flipped = 0
+    for pid, url in rows:
+        api_url = url.replace("https://www.gov.uk/", "https://www.gov.uk/api/content/")
+        try:
+            r = requests.get(api_url, timeout=30)
+            if r.status_code != 200:
+                continue
+            doc_type = (r.json() or {}).get("document_type") or ""
+        except Exception as exc:
+            log.warning(f"  consultation re-check failed for {url}: {exc}")
+            continue
+        if doc_type and doc_type not in ("open_consultation", "call_for_evidence"):
+            with conn.cursor() as cur:
+                cur.execute(
+                    'update "Policy" set "format" = %s, "display_type" = %s where id = %s',
+                    (doc_type, doc_type.replace("_", " ").title(), pid),
+                )
+            flipped += 1
+            log.info(f"  closed: {doc_type} | {url}")
+        time.sleep(0.2)
+    log.info(f"Consultation refresh done: {flipped} flipped to closed.")
+
+
 # ----------------------------------------------------------------------------
 # Pipeline
 # ----------------------------------------------------------------------------
@@ -849,6 +897,13 @@ def run(since: Optional[str], days: Optional[int]):
             _process_doc(holder, doc, seen, counts)
         for doc in fetch_fca_documents(since_date):
             _process_doc(holder, doc, seen, counts)
+
+        # Flip any stored open consultations whose window has since closed.
+        # Never let this optional pass fail the whole run.
+        try:
+            refresh_open_consultations(holder.conn)
+        except Exception as exc:
+            log.warning(f"Consultation refresh skipped: {exc}")
 
         new_live, new_review, errors = counts["live"], counts["review"], counts["errors"]
     finally:

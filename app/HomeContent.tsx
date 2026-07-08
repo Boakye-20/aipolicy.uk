@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Policy } from '@/types/policy';
 import { documentTypeCategory } from '@/components/Badges';
-import { formatDate } from '@/lib/utils';
+import { formatDate, withinDays } from '@/lib/utils';
 import { Search, ArrowRight, ExternalLink, TrendingUp, FileText, AlertCircle, BookOpen } from 'lucide-react';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -139,9 +139,9 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
     // Stats
     const totalPolicies   = policies.length;
     const totalReg        = policies.filter(p => p.policy_type === 'Regulation & Compliance').length;
-    const recentThisMonth = policies.filter(p => p.recency === 'Last month').length;
+    const recentThisMonth = policies.filter(p => withinDays(p.published_date, 31)).length;
     const totalDepts      = Array.from(new Set(policies.map(p => p.dept).filter(Boolean))).length;
-    const activeRecent    = policies.filter(p => p.recency === 'Last month' || p.recency === 'Last 3 months').length;
+    const activeRecent    = policies.filter(p => withinDays(p.published_date, 92)).length;
 
     return (
         <div className="bg-slate-50">

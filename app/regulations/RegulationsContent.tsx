@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Policy } from '@/types/policy';
-import { formatDate } from '@/lib/utils';
+import { formatDate, withinDays } from '@/lib/utils';
 import { Shield, Clock, ExternalLink, Building2, X } from 'lucide-react';
 import { PolicyTypeBadge, NeutralBadge, DocumentTypeBadge, StatusChip, documentTypeCategory, DOCUMENT_TYPE_CATEGORIES } from '@/components/Badges';
 
@@ -34,7 +34,12 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
         if (filterDept) filtered = filtered.filter(p => p.dept === filterDept);
         if (filterSector) filtered = filtered.filter(p => p.sector_focus === filterSector);
         if (filterDocType) filtered = filtered.filter(p => documentTypeCategory(p.format) === filterDocType);
-        if (filterRecency) filtered = filtered.filter(p => p.recency === filterRecency);
+        if (filterRecency) {
+            // Cumulative windows computed live from published_date (the stored
+            // recency field is frozen at ingest and goes stale between runs).
+            const days = { 'Last month': 31, 'Last 3 months': 92, 'Last 6 months': 183, 'Last year': 366 }[filterRecency];
+            if (days) filtered = filtered.filter(p => withinDays(p.published_date, days));
+        }
         if (dateFrom) filtered = filtered.filter(p => new Date(p.published_date) >= new Date(dateFrom));
         if (dateTo) filtered = filtered.filter(p => new Date(p.published_date) <= new Date(dateTo));
 

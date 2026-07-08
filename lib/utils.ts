@@ -49,6 +49,16 @@ export function groupByDepartment(policies: Policy[]) {
   }));
 }
 
+
+// True if the document was published within the last `days` days, computed
+// live from published_date. Use this instead of the stored `recency` field,
+// which is frozen at ingest time and goes stale between ETL re-runs.
+export function withinDays(dateString: string, days: number): boolean {
+  const t = new Date(dateString).getTime();
+  if (isNaN(t)) return false;
+  return (Date.now() - t) / 86400000 <= days;
+}
+
 export function formatDate(dateString: string): string {
   try {
     const date = new Date(dateString);

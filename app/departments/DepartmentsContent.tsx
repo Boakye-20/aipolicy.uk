@@ -1,5 +1,7 @@
 'use client';
 
+import { withinDays } from '@/lib/utils';
+
 import { useState } from 'react';
 import { Policy } from '@/types/policy';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -90,7 +92,7 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
         }, {} as Record<string, number>);
 
         const regulations = deptPolicies.filter(p => p.policy_type === 'Regulation & Compliance').length;
-        const recent = deptPolicies.filter(p => p.recency === 'Last month' || p.recency === 'Last 3 months').length;
+        const recent = deptPolicies.filter(p => withinDays(p.published_date, 92)).length;
 
         return {
             total: deptPolicies.length,
