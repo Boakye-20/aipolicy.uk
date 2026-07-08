@@ -153,15 +153,11 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
 
                 <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-10">
                     <div className="max-w-2xl">
-                        <p className="text-xs font-medium text-slate-400 tracking-widest uppercase mb-2">
-                            United Kingdom · AI Policy Observatory
-                        </p>
                         <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight leading-snug mb-2">
                             Track every UK AI regulation, strategy and guidance update.
                         </h1>
                         <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6 max-w-lg">
-                            Verified against official sources from DSIT, ICO, CMA, FCA and other UK
-                            departments and regulators. Coverage from January 2025.
+                            Verified against official UK government and regulator sources. Coverage from January 2025.
                         </p>
 
                         {/* Search */}
