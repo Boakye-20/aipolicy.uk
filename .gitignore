@@ -25,6 +25,10 @@ venv/
 
 # ETL run logs (runtime output from the weekly job)
 ingestion/logs/
+ingestion/*.log
+
+# One-off reclassification snapshot (revert data, not project source)
+ingestion/policy_type_snapshot.json
 
 # Local Windows scheduler scripts — the GitHub Actions cron (.github/workflows/
 # etl.yml) is the real scheduler; these are just a local fallback, kept off-repo.

@@ -74,7 +74,7 @@ export function documentTypeLabel(raw?: string | null): { label: string; open: b
         statements: 'Statement',
         corporate_report: 'Corporate report',
         transparency: 'Transparency',
-        algorithmic_transparency_record: 'Transparency record',
+        algorithmic_transparency_record: 'Transparency',
         ai_assurance_portfolio_technique: 'AI assurance technique',
         decision: 'Decision',
         notice: 'Notice',
@@ -113,4 +113,36 @@ export function DocumentTypeBadge({ format }: { format?: string | null }) {
             {dt.label}
         </span>
     );
+}
+
+// Coarse category for the document-type FILTER — groups the ~40 raw GOV.UK
+// types into a tidy set with an "Other" catch-all. The card badge still shows
+// the specific type (documentTypeLabel); this is only used to drive the filter.
+export const DOCUMENT_TYPE_CATEGORIES = [
+    'Open consultation',
+    'Closed consultation',
+    'Policy paper',
+    'Guidance',
+    'Research & reports',
+    'News & press releases',
+    'Speeches & statements',
+    'Transparency',
+    'Notices & decisions',
+    'Other',
+] as const;
+
+export function documentTypeCategory(raw?: string | null): string {
+    if (!raw || !raw.trim()) return 'Other';
+    const f = raw.trim().toLowerCase().replace(/\s+/g, '_');
+
+    if (f === 'open_consultation' || f === 'call_for_evidence') return 'Open consultation';
+    if (f.includes('consultation') || f.includes('call_for_evidence')) return 'Closed consultation';
+    if (f === 'policy_paper' || f === 'policy_statement') return 'Policy paper';
+    if (['guidance', 'finalised_guidance', 'detailed_guide', 'guide', 'statutory_guidance'].includes(f)) return 'Guidance';
+    if (['research', 'drcf_digital_markets_research', 'independent_report', 'national_statistics', 'official_statistics', 'impact_assessment', 'corporate_report'].includes(f)) return 'Research & reports';
+    if (['press_release', 'press_releases', 'news', 'news_story', 'news_stories', 'news_article'].includes(f)) return 'News & press releases';
+    if (['speech', 'speeches', 'oral_statement', 'written_statement', 'statement', 'statements'].includes(f)) return 'Speeches & statements';
+    if (['transparency', 'algorithmic_transparency_record', 'ai_assurance_portfolio_technique'].includes(f)) return 'Transparency';
+    if (['notice', 'decision', 'correspondence'].includes(f)) return 'Notices & decisions';
+    return 'Other';
 }

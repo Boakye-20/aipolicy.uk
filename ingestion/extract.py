@@ -124,7 +124,24 @@ class PolicyExtraction(BaseModel):
 
     policy_type: Literal[
         "Regulation & Compliance", "Implementation Guidance", "Strategy & Frameworks",
-        "Research & Analysis", "Funding & Investment", "International Cooperation"]
+        "Research & Analysis", "Funding & Investment", "International Cooperation"] = Field(
+        description=(
+            "The document's primary function — choose by what the document DOES. "
+            "Regulation & Compliance: rules, obligations, enforcement, regulatory reform. "
+            "Implementation Guidance: practical how-to guidance for adopting AI or complying with "
+            "rules — NOT news that a tool has launched or is being deployed (those are Strategy or "
+            "Funding). "
+            "Strategy & Frameworks: strategies, plans, frameworks, roadmaps, governance bodies — "
+            "NOT international summits, joint statements or treaties (those are International "
+            "Cooperation). "
+            "Research & Analysis: studies, evaluations, data, analysis, reports. "
+            "Funding & Investment: money, grants, investment, funding announcements. "
+            "International Cooperation: a FOREIGN country, foreign government/regulator, foreign "
+            "organisation or international body (G7, G20, UN, OECD) is a party — summits, treaties, "
+            "trade deals, or MoUs with foreign parties. CRUCIAL: if EVERY party is British (UK "
+            "departments, UK regulators like ICO/CMA/FCA, the NHS, UK public bodies), it is NOT "
+            "International Cooperation even if it says 'collaboration', 'partnership', 'charter', "
+            "'joint' or 'MoU' — those are Strategy & Frameworks."))
 
     business_impact: Literal["High Impact", "Strategic", "Operational", "Background"]
 

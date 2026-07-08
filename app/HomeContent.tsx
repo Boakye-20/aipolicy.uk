@@ -159,8 +159,8 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                             strategy and guidance update.
                         </h1>
                         <p className="text-sm text-slate-400 leading-relaxed mb-7 max-w-lg">
-                            Sourced continuously from Parliament, DSIT, ICO, CMA, Ofcom, FCA
-                            and all major government departments. Verified against official publications.
+                            Sourced continuously from DSIT, ICO, CMA, FCA and the major UK government
+                            departments and regulators. Verified against official publications.
                         </p>
 
                         {/* Search */}
@@ -393,7 +393,6 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                                     { label: 'ICO AI guidance hub', href: 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/artificial-intelligence/' },
                                     { label: 'CMA AI updates', href: 'https://www.gov.uk/cma-cases/ai-foundation-models-review' },
                                     { label: 'DSIT AI policy', href: 'https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology' },
-                                    { label: 'AISI publications', href: 'https://www.gov.uk/government/organisations/ai-safety-institute' },
                                 ].map(link => (
                                     <a
                                         key={link.label}

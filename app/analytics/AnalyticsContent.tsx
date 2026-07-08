@@ -7,7 +7,7 @@ import {
     ResponsiveContainer, Cell, PieChart, Pie, Sector
 } from 'recharts';
 import { TrendingUp, Shield, BarChart2, PieChart as PieChartIcon, Activity } from 'lucide-react';
-import { documentTypeLabel } from '@/components/Badges';
+import { documentTypeCategory } from '@/components/Badges';
 
 interface AnalyticsContentProps {
     initialPolicies: Policy[];
@@ -214,8 +214,8 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
 
     const getDocumentTypeBreakdown = () => {
         const acc = policies.reduce((a, p) => {
-            const label = documentTypeLabel(p.format)?.label;
-            if (label) a[label] = (a[label] || 0) + 1;
+            const label = documentTypeCategory(p.format);
+            a[label] = (a[label] || 0) + 1;
             return a;
         }, {} as Record<string, number>);
         return Object.entries(acc).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 12);

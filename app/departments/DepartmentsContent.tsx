@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Policy } from '@/types/policy';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Building2, FileText, Shield, TrendingUp } from 'lucide-react';
-import { documentTypeLabel } from '@/components/Badges';
+import { documentTypeCategory } from '@/components/Badges';
 
 interface DepartmentsContentProps {
     initialPolicies: Policy[];
@@ -84,8 +84,8 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
         }, {} as Record<string, number>);
 
         const docTypes = deptPolicies.reduce((acc, p) => {
-            const label = documentTypeLabel(p.format)?.label;
-            if (label) acc[label] = (acc[label] || 0) + 1;
+            const label = documentTypeCategory(p.format);
+            acc[label] = (acc[label] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 
@@ -99,7 +99,7 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
             policyTypes: policyTypesWithShortNames,
             timeline: Object.entries(timeline).map(([period, count]) => ({ period, count })).sort((a, b) => a.period.localeCompare(b.period)).slice(-12),
             sectors: Object.entries(sectors).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
-            documentTypes: Object.entries(docTypes).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6),
+            documentTypes: Object.entries(docTypes).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10),
         };
     };
 
@@ -219,11 +219,11 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
 
                     <div>
                         <h3 className="mb-4 text-sm font-semibold text-slate-900">Document types</h3>
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="100%" height={360}>
                             <BarChart data={selectedData.documentTypes} layout="vertical" margin={{ left: 10 }}>
                                 <CartesianGrid horizontal={false} stroke="#e2e8f0" />
-                                <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} />
-                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12, fill: '#475569' }} />
+                                <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} allowDecimals={false} />
+                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fill: '#475569' }} />
                                 <Tooltip cursor={{ fill: '#f1f5f9' }} />
                                 <Bar dataKey="value" fill="#2563eb" radius={[0, 3, 3, 0]} />
                             </BarChart>
