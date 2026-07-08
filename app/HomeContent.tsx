@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Policy } from '@/types/policy';
+import { documentTypeCategory } from '@/components/Badges';
 import { formatDate } from '@/lib/utils';
 import { Search, ArrowRight, ExternalLink, TrendingUp, FileText, AlertCircle, BookOpen } from 'lucide-react';
 
@@ -73,11 +74,12 @@ const FILTER_TO_TYPE: Partial<Record<Filter, string>> = {
 function matchesFilter(p: Policy, filter: Filter): boolean {
     if (filter === 'All') return true;
     if (filter === 'Consultation') {
-        // Consultation is a document type, not a policy_type — match the
-        // format/display_type the ETL stores, plus a title/stage fallback for
-        // older rows that predate document-type capture.
-        const hay = `${p.title} ${p.display_type} ${p.format} ${p.stage}`.toLowerCase();
-        return hay.includes('consult') || hay.includes('call for evidence') || hay.includes('call_for_evidence');
+        // Consultation is a document type, not a policy_type. Match on the
+        // same grouped categories the Explorer/Regulations filters use (open
+        // and closed consultations + calls for evidence) — no title sniffing,
+        // so consultation *responses* and outcomes don't false-match.
+        const cat = documentTypeCategory(p.format);
+        return cat === 'Open consultation' || cat === 'Closed consultation';
     }
     return p.policy_type === FILTER_TO_TYPE[filter];
 }
@@ -186,8 +188,9 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                         {/* Quick filters — drive the Latest updates feed below */}
                         <div className="flex flex-wrap gap-2">
                             {FILTERS.map(f => (
+                                <span key={f} className="flex items-center gap-2">
+                                    {f === 'Consultation' && <span className="h-4 w-px bg-[#334155]" aria-hidden="true" />}
                                 <button
-                                    key={f}
                                     onClick={() => setActiveFilter(f)}
                                     className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
                                         activeFilter === f
@@ -197,6 +200,7 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                                 >
                                     {f}
                                 </button>
+                                </span>
                             ))}
                         </div>
                     </div>
