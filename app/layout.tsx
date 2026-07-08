@@ -65,6 +65,8 @@ function Footer() {
                     <p>UK AI Policy Tracker · Built by Paul Kwarteng</p>
                     <p className="text-xs">
                         Summaries link to official sources and are not a substitute for legal advice.
+                        {' '}·{' '}
+                        <Link href="/privacy" className="underline hover:text-slate-700">Privacy policy</Link>
                     </p>
                 </div>
             </div>
