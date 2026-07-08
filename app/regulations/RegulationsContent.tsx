@@ -94,37 +94,37 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div className="rounded-md border border-slate-200 bg-white p-5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                <div className="rounded-md border border-slate-200 bg-white p-4">
                     <div className="flex items-center gap-2 text-slate-500">
                         <Clock className="h-4 w-4" />
                         <p className="text-sm font-medium">New this month</p>
                     </div>
-                    <p className="mt-2 text-3xl font-semibold text-slate-900 nums-tabular">{stats.newThisMonth}</p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-900 nums-tabular">{stats.newThisMonth}</p>
                 </div>
-                <div className="rounded-md border border-slate-200 bg-white p-5">
+                <div className="rounded-md border border-slate-200 bg-white p-4">
                     <div className="flex items-center gap-2 text-slate-500">
                         <Clock className="h-4 w-4" />
                         <p className="text-sm font-medium">Recent (3 months)</p>
                     </div>
-                    <p className="mt-2 text-3xl font-semibold text-slate-900 nums-tabular">{stats.recentQuarter}</p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-900 nums-tabular">{stats.recentQuarter}</p>
                 </div>
-                <div className="rounded-md border border-slate-200 bg-white p-5">
+                <div className="rounded-md border border-slate-200 bg-white p-4">
                     <div className="flex items-center gap-2 text-slate-500">
                         <Building2 className="h-4 w-4" />
                         <p className="text-sm font-medium">Most active (3 months)</p>
                     </div>
-                    <p className="mt-2 text-3xl font-semibold text-slate-900">
+                    <p className="mt-2 text-2xl font-semibold text-slate-900">
                         {stats.mostActive ? stats.mostActive[0].replace(/_/g, ' ') : '—'}
                         {stats.mostActive && <span className="ml-2 text-base font-medium text-slate-500 nums-tabular">{stats.mostActive[1]}</span>}
                     </p>
                 </div>
-                <div className="rounded-md border border-slate-200 bg-white p-5">
+                <div className="rounded-md border border-slate-200 bg-white p-4">
                     <div className="flex items-center gap-2 text-slate-500">
                         <Shield className="h-4 w-4" />
                         <p className="text-sm font-medium">AI regulations</p>
                     </div>
-                    <p className="mt-2 text-3xl font-semibold text-slate-900 nums-tabular">{initialPolicies.length}</p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-900 nums-tabular">{initialPolicies.length}</p>
                 </div>
             </div>
 

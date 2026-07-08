@@ -126,30 +126,32 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
                 </div>
             </div>
 
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-                <select value={filters.dept} onChange={(e) => setFilters({ ...filters, dept: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                    <option value="">All departments</option>
-                    {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
-                </select>
-                <select value={filters.policyType} onChange={(e) => setFilters({ ...filters, policyType: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                    <option value="">All types</option>
-                    {policyTypes.map(type => <option key={type} value={type}>{type}</option>)}
-                </select>
-                <select value={filters.sector} onChange={(e) => setFilters({ ...filters, sector: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                    <option value="">All sectors</option>
-                    {sectors.map(sector => <option key={sector} value={sector}>{sector}</option>)}
-                </select>
-                <select value={filters.documentType} onChange={(e) => setFilters({ ...filters, documentType: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                    <option value="">All document types</option>
-                    {documentCategories.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-                <input type="date" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
-                <input type="date" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
-                <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                    <option value="newest">Newest first</option>
-                    <option value="oldest">Oldest first</option>
-                </select>
-                <button onClick={clearFilters} className="text-sm text-primary-600 hover:text-primary-700">Clear</button>
+            <div className="mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                    <select value={filters.dept} onChange={(e) => setFilters({ ...filters, dept: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="">All departments</option>
+                        {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
+                    </select>
+                    <select value={filters.policyType} onChange={(e) => setFilters({ ...filters, policyType: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="">All types</option>
+                        {policyTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                    </select>
+                    <select value={filters.sector} onChange={(e) => setFilters({ ...filters, sector: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="">All sectors</option>
+                        {sectors.map(sector => <option key={sector} value={sector}>{sector}</option>)}
+                    </select>
+                    <select value={filters.documentType} onChange={(e) => setFilters({ ...filters, documentType: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="">All document types</option>
+                        {documentCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <input type="date" aria-label="Published from" value={filters.dateFrom} onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
+                    <input type="date" aria-label="Published to" value={filters.dateTo} onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
+                    <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                    </select>
+                </div>
+                <button onClick={clearFilters} className="mt-2 text-sm text-primary-600 hover:text-primary-700">Clear filters</button>
             </div>
 
             <p className="mb-6 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">

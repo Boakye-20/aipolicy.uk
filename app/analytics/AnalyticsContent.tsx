@@ -257,8 +257,8 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                 <p className="mt-1 text-sm text-slate-600">Comprehensive analysis of AI policy trends and metrics.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                         <div>
                             <div className="flex items-center text-slate-600 mb-2">
@@ -266,7 +266,7 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                                 <span className="text-sm font-medium">Publication Trend</span>
                             </div>
                             <div className="flex items-baseline">
-                                <p className="text-3xl font-bold text-slate-900">
+                                <p className="text-2xl font-bold text-slate-900">
                                     {trend.direction === 'up' ? '+' : trend.direction === 'down' ? '−' : ''}{trend.percentage}%
                                 </p>
                                 <span className="ml-2 text-sm text-slate-500">vs previous period</span>
@@ -281,14 +281,14 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                         <div>
                             <div className="flex items-center text-slate-600 mb-2">
                                 <Shield className="w-5 h-5 mr-2" />
                                 <span className="text-sm font-medium">Regulatory Activity</span>
                             </div>
-                            <p className="text-3xl font-bold text-slate-900">{regulationsCount}</p>
+                            <p className="text-2xl font-bold text-slate-900">{regulationsCount}</p>
                             <p className="text-sm text-slate-500 mt-1">
                                 {regulationsPercent}% of all policies · {policies.filter(p => p.policy_type === 'Regulation & Compliance' && new Date(p.published_date) >= new Date(new Date().setMonth(new Date().getMonth() - 6))).length} in last 6 months
                             </p>
@@ -299,14 +299,14 @@ export default function AnalyticsContent({ initialPolicies }: AnalyticsContentPr
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                         <div>
                             <div className="flex items-center text-slate-600 mb-2">
                                 <BarChart2 className="w-5 h-5 mr-2" />
                                 <span className="text-sm font-medium">Policy Distribution</span>
                             </div>
-                            <p className="text-3xl font-bold text-slate-900">{policyTypeBreakdown[0]?.value || 0}</p>
+                            <p className="text-2xl font-bold text-slate-900">{policyTypeBreakdown[0]?.value || 0}</p>
                             <p className="text-sm text-slate-500 mt-1">
                                 {policyTypeBreakdown[0]?.name || 'N/A'} policies · {policies.length} total
                             </p>
