@@ -3,6 +3,13 @@ import { Policy } from '@/types/policy';
 
 const prisma = new PrismaClient();
 
+// Coverage begins 1 January 2025 — a deliberate cutoff. The ETL only sweeps
+// sources comprehensively from this point; older documents surface patchily
+// (whatever happened to match a search), so showing them implies a
+// completeness we don't have. Surface this date in the UI wherever counts
+// are shown so users know the window is intentional.
+export const COVERAGE_START = new Date('2025-01-01');
+
 export async function getPolicies(filters?: {
     dept?: string | null;
     priority?: string | null;
@@ -14,7 +21,10 @@ export async function getPolicies(filters?: {
         // Only live rows reach users. Anything in the review queue
         // (status='review' — obligations without a verbatim quote) stays hidden
         // until a human approves it by setting status='live'.
-        const where: Prisma.PolicyWhereInput = { status: 'live' };
+        const where: Prisma.PolicyWhereInput = {
+            status: 'live',
+            published_date: { gte: COVERAGE_START },
+        };
 
         if (filters?.dept) {
             where.dept = filters.dept;

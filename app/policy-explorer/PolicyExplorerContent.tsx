@@ -157,7 +157,7 @@ export default function PolicyExplorerContent({ initialPolicies, initialSearch, 
                     {filteredPolicies.length} {filteredPolicies.length === 1 ? 'policy' : 'policies'}
                     {searchTerm && ` · matching "${searchTerm}"`}
                 </span>
-                {lastUpdated && <span className="text-xs text-slate-400">Data current as of {lastUpdated}</span>}
+                {lastUpdated && <span className="text-xs text-slate-400">Coverage from 1 Jan 2025 · Data current as of {lastUpdated}</span>}
             </p>
 
             <div className="space-y-4">

@@ -127,7 +127,10 @@ export default function DepartmentsContent({ initialPolicies }: DepartmentsConte
                     </div>
 
                     <div>
-                        <h3 className="mb-4 text-sm font-semibold text-slate-900">Regulation share by department</h3>
+                        <div className="mb-4 flex items-baseline justify-between">
+                            <h3 className="text-sm font-semibold text-slate-900">Regulation share by department</h3>
+                            <span className="text-[11px] font-medium uppercase tracking-wide text-slate-400">reg / total</span>
+                        </div>
                         <div className="space-y-3">
                             {deptStats.map((stat, index) => (
                                 <div key={index} className="flex items-center">

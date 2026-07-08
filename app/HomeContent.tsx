@@ -160,7 +160,7 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                         </h1>
                         <p className="text-sm text-slate-400 leading-relaxed mb-7 max-w-lg">
                             Sourced continuously from DSIT, ICO, CMA, FCA and the major UK government
-                            departments and regulators. Verified against official publications.
+                            departments and regulators. Verified against official publications. Coverage from January 2025.
                         </p>
 
                         {/* Search */}

@@ -98,6 +98,7 @@ export function documentTypeLabel(raw?: string | null): { label: string; open: b
 
 // The document/instrument type from GOV.UK metadata — a hard fact. Open
 // consultations get a stronger, dotted treatment to flag they're still live.
+// Amber = "still open, clock running" — same meaning as StatusChip below.
 export function DocumentTypeBadge({ format }: { format?: string | null }) {
     const dt = documentTypeLabel(format);
     if (!dt) return null;
@@ -105,19 +106,42 @@ export function DocumentTypeBadge({ format }: { format?: string | null }) {
         <span
             className={`inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-xs ${
                 dt.open
-                    ? 'border-slate-900 text-slate-900 font-semibold'
+                    ? 'border-amber-500 text-amber-700 font-semibold'
                     : 'border-slate-300 text-slate-700 font-medium'
             }`}
         >
-            {dt.open && <span className="h-1.5 w-1.5 rounded-full bg-slate-900" />}
+            {dt.open && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
             {dt.label}
+        </span>
+    );
+}
+
+// Status chip for the Regulations table. Shows the same grouped category as
+// the document-type filter (documentTypeCategory), so the table column and
+// the filter dropdown always line up one-to-one. Every chip gets a dot for a
+// consistent scan line. One colour, one meaning: amber = open consultation
+// (still taking input, you can act); everything else is muted slate.
+const CATEGORY_DOT: Record<string, string> = {
+    'Open consultation': 'bg-amber-500',
+    'Closed consultation': 'bg-slate-400',
+};
+
+export function StatusChip({ format }: { format?: string | null }) {
+    const category = documentTypeCategory(format);
+    const dot = CATEGORY_DOT[category] || 'bg-slate-300';
+    const emphasis = category === 'Open consultation' ? 'text-amber-700 font-semibold' : 'text-slate-700 font-medium';
+    return (
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded border border-slate-300 bg-white px-2 py-0.5 text-xs">
+            <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+            <span className={emphasis}>{category}</span>
         </span>
     );
 }
 
 // Coarse category for the document-type FILTER — groups the ~40 raw GOV.UK
 // types into a tidy set with an "Other" catch-all. The card badge still shows
-// the specific type (documentTypeLabel); this is only used to drive the filter.
+// the specific type (documentTypeLabel); this drives the filter and the
+// Regulations status column.
 export const DOCUMENT_TYPE_CATEGORIES = [
     'Open consultation',
     'Closed consultation',
@@ -137,12 +161,12 @@ export function documentTypeCategory(raw?: string | null): string {
 
     if (f === 'open_consultation' || f === 'call_for_evidence') return 'Open consultation';
     if (f.includes('consultation') || f.includes('call_for_evidence')) return 'Closed consultation';
-    if (f === 'policy_paper' || f === 'policy_statement') return 'Policy paper';
-    if (['guidance', 'finalised_guidance', 'detailed_guide', 'guide', 'statutory_guidance'].includes(f)) return 'Guidance';
-    if (['research', 'drcf_digital_markets_research', 'independent_report', 'national_statistics', 'official_statistics', 'impact_assessment', 'corporate_report'].includes(f)) return 'Research & reports';
-    if (['press_release', 'press_releases', 'news', 'news_story', 'news_stories', 'news_article'].includes(f)) return 'News & press releases';
+    if (f === 'policy_paper' || f === 'policy_statement' || f === 'international_treaty') return 'Policy paper';
+    if (['guidance', 'finalised_guidance', 'detailed_guide', 'guide', 'statutory_guidance', 'standard', 'ai_assurance_portfolio_technique'].includes(f)) return 'Guidance';
+    if (['research', 'drcf_digital_markets_research', 'independent_report', 'national_statistics', 'official_statistics', 'impact_assessment', 'corporate_report', 'case_study'].includes(f)) return 'Research & reports';
+    if (['press_release', 'press_releases', 'news', 'news_story', 'news_stories', 'news_article', 'blog'].includes(f)) return 'News & press releases';
     if (['speech', 'speeches', 'oral_statement', 'written_statement', 'statement', 'statements'].includes(f)) return 'Speeches & statements';
-    if (['transparency', 'algorithmic_transparency_record', 'ai_assurance_portfolio_technique'].includes(f)) return 'Transparency';
-    if (['notice', 'decision', 'correspondence'].includes(f)) return 'Notices & decisions';
+    if (['transparency', 'algorithmic_transparency_record'].includes(f)) return 'Transparency';
+    if (['notice', 'decision', 'correspondence', 'cma_case'].includes(f)) return 'Notices & decisions';
     return 'Other';
 }
