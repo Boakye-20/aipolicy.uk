@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { Landmark, ArrowUpRight } from "lucide-react";
+import { Landmark } from "lucide-react";
 import Navigation from "@/components/navigation/Navigation";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -42,15 +42,6 @@ function Header() {
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         Feed live
                     </div>
-                    <a
-                        href="https://ai-compliance-tool-cyan.vercel.app/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center rounded-lg bg-navy-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-navy-700 transition-colors"
-                    >
-                        Compliance Tool
-                        <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
-                    </a>
                 </div>
             </div>
         </header>

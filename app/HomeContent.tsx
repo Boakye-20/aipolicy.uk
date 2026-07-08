@@ -151,18 +151,17 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                 {/* Thin UK accent stripe */}
                 <div className="h-[3px] bg-gradient-to-r from-[#012169] via-[#C8102E] to-[#012169]" />
 
-                <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-12">
+                <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-10">
                     <div className="max-w-2xl">
-                        <p className="text-xs font-medium text-slate-400 tracking-widest uppercase mb-3">
+                        <p className="text-xs font-medium text-slate-400 tracking-widest uppercase mb-2">
                             United Kingdom · AI Policy Observatory
                         </p>
-                        <h1 className="text-3xl sm:text-4xl font-semibold text-white tracking-tight leading-tight mb-3">
-                            Track every UK AI regulation,<br className="hidden sm:block" />
-                            strategy and guidance update.
+                        <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight leading-snug mb-2">
+                            Track every UK AI regulation, strategy and guidance update.
                         </h1>
-                        <p className="text-sm text-slate-400 leading-relaxed mb-7 max-w-lg">
-                            Sourced continuously from DSIT, ICO, CMA, FCA and the major UK government
-                            departments and regulators. Verified against official publications. Coverage from January 2025.
+                        <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6 max-w-lg">
+                            Verified against official sources from DSIT, ICO, CMA, FCA and other UK
+                            departments and regulators. Coverage from January 2025.
                         </p>
 
                         {/* Search */}
