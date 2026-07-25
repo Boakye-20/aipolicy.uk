@@ -20,6 +20,10 @@ const nextConfig = {
     async rewrites() {
         return [
             {
+                source: '/updates.json',
+                destination: '/api/updates',
+            },
+            {
                 source: '/:path*',
                 has: [
                     {
