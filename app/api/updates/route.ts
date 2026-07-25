@@ -42,11 +42,31 @@ function inferFramework(dept: string | null, primaryTopic: string | null, keyTop
     return null;
 }
 
+// ── Date Sanity Filter ─────────────────────────────────────────────────────────
+
+function isDateSane(title: string, publishedDate: Date | null): boolean {
+    if (!publishedDate) return true;
+    
+    // Look for 4-digit years in the title (e.g., 2023, 2024)
+    const yearMatch = title.match(/\b(201\d|202\d)\b/);
+    if (yearMatch) {
+        const titleYear = parseInt(yearMatch[1], 10);
+        const pubYear = publishedDate.getFullYear();
+        
+        // If title references a past year but the published date is strictly later,
+        // it's likely a stale seed record with an incorrect date. Exclude it.
+        if (titleYear < pubYear) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // ── Route handler ────────────────────────────────────────────────────────────
 
 export async function GET() {
     try {
-        const policies = await prisma.policy.findMany({
+        const rawPolicies = await prisma.policy.findMany({
             where: { status: 'live' },
             orderBy: { published_date: 'desc' },
             take: 50,
@@ -60,6 +80,9 @@ export async function GET() {
                 url: true,
             },
         });
+
+        // Filter out policies with suspicious dates (e.g., "AI Safety Summit 2023" published in 2026)
+        const policies = rawPolicies.filter((p) => isDateSane(p.title, p.published_date));
 
         const updates = policies.map((p) => ({
             id: p.id,
