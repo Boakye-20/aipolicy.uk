@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Policy } from '@/types/policy';
 import { documentTypeCategory } from '@/components/Badges';
 import { formatDate, withinDays } from '@/lib/utils';
-import { Search, ArrowRight, ExternalLink, TrendingUp, FileText, AlertCircle, BookOpen } from 'lucide-react';
+import { Search, ArrowRight, ExternalLink, TrendingUp, FileText, AlertCircle, BookOpen, X } from 'lucide-react';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -89,6 +89,7 @@ function matchesFilter(p: Policy, filter: Filter): boolean {
 export default function HomeContent({ initialPolicies }: { initialPolicies: Policy[] }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState<Filter>('All');
+    const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
 
     const policies = initialPolicies;
 
@@ -180,22 +181,21 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                             </button>
                         </form>
 
-                        {/* Quick filters — drive the Latest updates feed below */}
+                        {/* Navigation tabs — link to main site sections */}
                         <div className="flex flex-wrap gap-2">
-                            {FILTERS.map(f => (
-                                <span key={f} className="flex items-center gap-2">
-                                    {f === 'Consultation' && <span className="h-4 w-px bg-[#334155]" aria-hidden="true" />}
-                                <button
-                                    onClick={() => setActiveFilter(f)}
-                                    className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
-                                        activeFilter === f
-                                            ? 'bg-primary-600 border-primary-600 text-white'
-                                            : 'border-[#334155] text-slate-400 hover:border-slate-500 hover:text-slate-300 bg-transparent'
-                                    }`}
+                            {[
+                                { label: 'Policy Explorer', href: '/policy-explorer' },
+                                { label: 'Regulations', href: '/regulations' },
+                                { label: 'Departments', href: '/departments' },
+                                { label: 'Analytics', href: '/analytics' },
+                            ].map(link => (
+                                <a
+                                    key={link.label}
+                                    href={link.href}
+                                    className="px-3 py-1 rounded text-xs font-medium border border-[#334155] text-slate-400 hover:border-slate-500 hover:text-slate-300 bg-transparent transition-colors"
                                 >
-                                    {f}
-                                </button>
-                                </span>
+                                    {link.label}
+                                </a>
                             ))}
                         </div>
                     </div>
@@ -258,6 +258,25 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
 
                     {/* Latest updates feed — 2/3 width */}
                     <div className="lg:col-span-2">
+                        {/* Type filters — filter the feed below */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            {FILTERS.map(f => (
+                                <span key={f} className="flex items-center gap-2">
+                                    {f === 'Consultation' && <span className="h-4 w-px bg-slate-200" aria-hidden="true" />}
+                                    <button
+                                        onClick={() => setActiveFilter(f)}
+                                        className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
+                                            activeFilter === f
+                                                ? 'bg-primary-600 border-primary-600 text-white'
+                                                : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700 bg-white'
+                                        }`}
+                                    >
+                                        {f}
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+
                         <div className="flex items-baseline justify-between mb-3">
                             <span className="section-label">
                                 Latest updates{activeFilter !== 'All' ? ` · ${activeFilter}` : ''}
@@ -274,7 +293,11 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                         ) : (
                             <div className="space-y-2">
                                 {recentPolicies.map((policy) => (
-                                    <div key={policy.url} className="card card-hover">
+                                    <div
+                                        key={policy.url}
+                                        className="card card-hover cursor-pointer"
+                                        onClick={() => setSelectedPolicy(policy)}
+                                    >
                                         <div className="flex">
                                             <div className={`w-0.5 ${accentBar[policy.policy_type] ?? 'bg-slate-300'} rounded-l-md flex-shrink-0`} />
                                             <div className="flex-1 p-4">
@@ -299,16 +322,6 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                                                     <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
                                                         {policy.ai_summary}
                                                     </p>
-                                                )}
-                                                {policy.url && (
-                                                    <a
-                                                        href={policy.url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 mt-2"
-                                                    >
-                                                        View source <ExternalLink className="w-3 h-3" />
-                                                    </a>
                                                 )}
                                             </div>
                                         </div>
@@ -410,6 +423,63 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                     </div>
                 </div>
             </div>
+
+            {/* ── Policy detail popup ─────────────────────────────────────── */}
+            {selectedPolicy && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                    onClick={() => setSelectedPolicy(null)}
+                >
+                    <div className="absolute inset-0 bg-black/40" />
+                    <div
+                        className="relative bg-white rounded-xl shadow-2xl max-w-md w-full z-10 overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex">
+                            <div className={`w-1 ${accentBar[selectedPolicy.policy_type] ?? 'bg-slate-300'} flex-shrink-0`} />
+                            <div className="flex-1 p-5">
+                                <button
+                                    onClick={() => setSelectedPolicy(null)}
+                                    className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                                <h3 className="text-sm font-semibold text-slate-900 leading-snug pr-5 mb-2">
+                                    {selectedPolicy.title}
+                                </h3>
+                                <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                                    <span className="text-xs font-medium text-primary-700">{selectedPolicy.dept}</span>
+                                    {selectedPolicy.policy_type && (
+                                        <>
+                                            <span className="text-slate-300 text-xs">·</span>
+                                            <span className={getBadgeClass(selectedPolicy.policy_type)}>
+                                                {getBadgeLabel(selectedPolicy.policy_type)}
+                                            </span>
+                                        </>
+                                    )}
+                                    <span className="text-slate-300 text-xs">·</span>
+                                    <span className="text-xs text-slate-400 nums-tabular">{formatDate(selectedPolicy.published_date)}</span>
+                                </div>
+                                {selectedPolicy.ai_summary && (
+                                    <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                                        {selectedPolicy.ai_summary}
+                                    </p>
+                                )}
+                                {selectedPolicy.url && (
+                                    <a
+                                        href={selectedPolicy.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 font-medium"
+                                    >
+                                        View source <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
