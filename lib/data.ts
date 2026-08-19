@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { Policy } from '@/types/policy';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // Coverage begins 1 January 2025 — a deliberate cutoff. The ETL only sweeps
 // sources comprehensively from this point; older documents surface patchily

@@ -4,6 +4,14 @@ import { getPolicies } from '@/lib/data';
 // This prevents static optimization and ensures the route is dynamic
 export const dynamic = 'force-dynamic';
 
+const MAX_PARAM_LENGTH = 100;
+
+function sanitiseParam(value: string | null): string | null {
+    if (value === null) return null;
+    if (value.length > MAX_PARAM_LENGTH) return null; // reject oversized values
+    return value;
+}
+
 export async function GET(request: Request) {
     try {
         // Get search params from the URL
@@ -11,18 +19,18 @@ export async function GET(request: Request) {
 
         // Filtering is now done in SQL by getPolicies
         const data = await getPolicies({
-            dept: searchParams.get('dept'),
-            priority: searchParams.get('priority'),
-            policyType: searchParams.get('policyType'),
-            sector: searchParams.get('sector'),
-            aiApplication: searchParams.get('aiApplication'),
+            dept: sanitiseParam(searchParams.get('dept')),
+            priority: sanitiseParam(searchParams.get('priority')),
+            policyType: sanitiseParam(searchParams.get('policyType')),
+            sector: sanitiseParam(searchParams.get('sector')),
+            aiApplication: sanitiseParam(searchParams.get('aiApplication')),
         });
 
         return NextResponse.json({ data });
     } catch (error) {
         console.error('Error in API route:', error);
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Failed to fetch policies' },
+            { error: 'Failed to fetch policies' },
             { status: 500 }
         );
     }
