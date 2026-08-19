@@ -4,14 +4,14 @@ import PolicyExplorerContent from './PolicyExplorerContent';
 export default async function PolicyExplorerPage({
     searchParams,
 }: {
-    searchParams: { q?: string; dept?: string };
+    searchParams: Promise<{ q?: string; dept?: string }>;
 }) {
-    const policies = await getPolicies({});
+    const [policies, resolvedParams] = await Promise.all([getPolicies({}), searchParams]);
     return (
         <PolicyExplorerContent
             initialPolicies={policies}
-            initialSearch={searchParams.q || ''}
-            initialDept={searchParams.dept || ''}
+            initialSearch={resolvedParams.q || ''}
+            initialDept={resolvedParams.dept || ''}
         />
     );
 }
