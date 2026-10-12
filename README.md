@@ -1,6 +1,6 @@
 # UK AI Policy Tracker
 
-A web app that tracks UK AI policy documents — regulations, guidance, strategy, consultations, research, funding and international agreements — from GOV.UK, the ICO and the FCA.
+A web app that tracks UK AI policy documents (regulations, guidance, strategy, consultations, research, funding and international agreements) from GOV.UK, the ICO and the FCA.
 
 A Python pipeline reads the sources, summarises each document with an LLM and writes it to Postgres. The Next.js frontend reads that database live, so new documents appear on the site without a redeploy.
 
@@ -57,7 +57,7 @@ python extract.py --days 30         # a longer window
 python extract.py --since 2026-01-01
 ```
 
-`DATABASE_URL` here must be the **direct** Neon connection, not the pooler — the
+`DATABASE_URL` here must be the **direct** Neon connection, not the pooler, because the
 pipeline is a batch job that holds one connection and commits repeatedly.
 
 This also runs automatically: `.github/workflows/etl.yml` runs it every Monday at
@@ -68,8 +68,8 @@ This also runs automatically: `.github/workflows/etl.yml` runs it every Monday a
 
 Every row has a `status`:
 
-- `live` — the summary is backed by a verbatim quote from the source, so the site shows it.
-- `review` — the pipeline claimed obligations it could not quote. Hidden from the
+- `live`: the summary is backed by a verbatim quote from the source, so the site shows it.
+- `review`: the pipeline claimed obligations it could not quote. Hidden from the
   site until a human reads it and sets `status = 'live'`.
 
 The frontend only ever queries `status = 'live'`, so unverified claims can never
@@ -99,8 +99,8 @@ docs/             Developer guide
 
 ## More detail
 
-- [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) — architecture, page patterns, conventions. Read this before changing code.
-- [`DEPLOY.md`](DEPLOY.md) — deploying to Vercel.
+- [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md): architecture, page patterns, conventions. Read this before changing code.
+- [`DEPLOY.md`](DEPLOY.md): deploying to Vercel.
 
 ## Licence
 
