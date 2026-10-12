@@ -56,7 +56,6 @@ python extract.py                   # default: last 7 days
 python extract.py --days 30         # a longer window
 python extract.py --since 2026-01-01
 ```
-
 `DATABASE_URL` here must be the **direct** Neon connection, not the pooler, because the
 pipeline is a batch job that holds one connection and commits repeatedly.
 
