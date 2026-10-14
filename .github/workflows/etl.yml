@@ -21,6 +21,14 @@ on:
         description: "Or an ISO start date, e.g. 2026-01-01 (overrides 'days')"
         required: false
         default: ""
+      mode:
+        description: "extract (default), requalify-dry-run, requalify, or requalify-revert"
+        required: false
+        default: "extract"
+      revert_run_id:
+        description: "For requalify-revert: the run ID of the requalify run to undo"
+        required: false
+        default: ""
 
 # Prevent overlapping runs from racing on the same rows.
 concurrency:
@@ -47,6 +55,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ingestion/requirements.txt
 
+      - name: Fetch requalify snapshot to revert
+        if: github.event.inputs.mode == 'requalify-revert'
+        uses: actions/download-artifact@v4
+        with:
+          name: status-snapshot
+          path: ingestion
+          run-id: ${{ github.event.inputs.revert_run_id }}
+          github-token: ${{ github.token }}
+
       - name: Run extraction
         working-directory: ingestion
         env:
@@ -55,6 +72,11 @@ jobs:
           # commits repeatedly — use the direct host, not the serverless pooler).
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          case "${{ github.event.inputs.mode }}" in
+            requalify-dry-run) python requalify.py --dry-run; exit ;;
+            requalify)         python requalify.py; exit ;;
+            requalify-revert)  python requalify.py --revert; exit ;;
+          esac
           if [ -n "${{ github.event.inputs.since }}" ]; then
             python extract.py --since "${{ github.event.inputs.since }}"
           elif [ -n "${{ github.event.inputs.days }}" ]; then
@@ -62,3 +84,12 @@ jobs:
           else
             python extract.py
           fi
+
+      # requalify.py's revert snapshot only exists on the runner; keep it.
+      - name: Save requalify snapshot
+        if: github.event.inputs.mode == 'requalify'
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-snapshot
+          path: ingestion/status_snapshot.json
+          retention-days: 90

@@ -91,6 +91,10 @@ OTHER_SOURCES = {
     "fca_direct": ("FCA", "Regulators"),
 }
 
+# GOV.UK sources whose documents also get a body check when the title and
+# description don't mention AI (regulator output is rarely summarised as "AI").
+BODY_CHECK_SLUGS = {"competition-and-markets-authority"}
+
 AI_KEYWORDS = [
     "artificial intelligence", "ai", "machine learning", "large language model",
     "llm", "generative ai", "foundation model", "algorithmic", "automated decision",
@@ -108,11 +112,51 @@ def is_ai_relevant(text: str) -> bool:
     return bool(_AI_KEYWORD_RE.search(text))
 
 
+# Body-only matches need more evidence than a title/description match. One
+# passing "AI" in 18k chars of body text let unrelated documents through (steel
+# trade measures, privacy notices whose GDPR boilerplate says "automated
+# decision-making"). "automated decision" is deliberately not a strong term.
+_STRONG_AI_RE = re.compile(
+    r"\b(artificial intelligence|ai|machine learning|large language models?|llms?|"
+    r"generative ai|foundation models?|algorithmic|computer vision|"
+    r"natural language processing|deepfakes?)\b",
+    re.IGNORECASE,
+)
+_MIN_BODY_AI_MENTIONS = 3
+
+
+def body_is_ai_relevant(body: str) -> bool:
+    return len(_STRONG_AI_RE.findall(body)) >= _MIN_BODY_AI_MENTIONS
+
+
+def is_ai_relevant_doc(title_desc: str, body: Optional[str]) -> bool:
+    """Title/description hit is enough; a body-only hit needs repeated mentions."""
+    if is_ai_relevant(title_desc):
+        return True
+    return bool(body) and body_is_ai_relevant(body)
+
+
+# Standard GOV.UK privacy notices are data-protection boilerplate, never AI policy.
+_EXCLUDED_TITLE_RE = re.compile(r"\bprivacy notice\b", re.IGNORECASE)
+
+
+def is_excluded_title(title: str) -> bool:
+    return bool(_EXCLUDED_TITLE_RE.search(title))
+
+
 # ----------------------------------------------------------------------------
 # The strict extraction contract — Literals are YOUR dashboard's actual values,
 # pulled from the existing data. The model physically cannot return anything else.
 # ----------------------------------------------------------------------------
 class PolicyExtraction(BaseModel):
+    ai_focus: int = Field(
+        ge=1, le=10,
+        description=("1-10: how much the document is ABOUT AI. 9-10: AI or algorithmic "
+                     "systems are the subject. 6-8: a substantive section or specific "
+                     "requirement on AI. 4-5: AI is one item in a broader list. 1-3: AI is "
+                     "mentioned in passing or not at all (e.g. trade, sanctions, general "
+                     "data protection or privacy notices)."))
+
     relevance_score: int = Field(
         ge=1, le=10,
         description=("1-10. Reserve 8-10 for binding obligations or major frameworks. "
@@ -244,10 +288,18 @@ def fetch_documents(dept_slug: str, since: str) -> list[dict]:
         # off this value.
         d["format"] = d.get("content_store_document_type") or d.get("format", "")
 
-    relevant = [
-        d for d in results
-        if is_ai_relevant(d.get("title", "") + " " + d.get("description", ""))
-    ]
+    relevant = []
+    for d in results:
+        title_desc = d.get("title", "") + " " + d.get("description", "")
+        if is_ai_relevant(title_desc):
+            relevant.append(d)
+        elif dept_slug in BODY_CHECK_SLUGS:
+            # Regulators rarely say "AI" in a summary; check the body (cached
+            # for extract() to reuse), under the stricter body-only rule.
+            body = fetch_body_text(d.get("link", ""))
+            if body and body_is_ai_relevant(body):
+                d["_body_cache"] = body
+                relevant.append(d)
     log.info(f"  {dept_slug}: {len(results)} fetched, {len(relevant)} AI-relevant")
     return relevant
 
@@ -309,7 +361,7 @@ def fetch_consultations(dept_slug: str, since: str) -> list[dict]:
             keep = True
         else:
             body = fetch_body_text(link)
-            keep = bool(body and is_ai_relevant(body))
+            keep = bool(body and body_is_ai_relevant(body))
             if keep:
                 d["_body_cache"] = body
         if keep:
@@ -444,7 +496,7 @@ def fetch_ico_documents(since: str) -> list[dict]:
         doc = _fetch_ico_article(url)
         if not doc:
             continue
-        if is_ai_relevant(doc["title"] + " " + doc["_body_cache"]):
+        if is_ai_relevant_doc(doc["title"], doc["_body_cache"]):
             relevant.append(doc)
         time.sleep(0.2)
 
@@ -580,7 +632,7 @@ def fetch_fca_documents(since: str) -> list[dict]:
         doc = _fetch_fca_article(url)
         if not doc:
             continue
-        if is_ai_relevant(doc["title"] + " " + doc["_body_cache"]):
+        if is_ai_relevant_doc(doc["title"], doc["_body_cache"]):
             relevant.append(doc)
         time.sleep(0.2)
 
@@ -619,6 +671,11 @@ def extract(doc: dict) -> Optional[PolicyExtraction]:
     except Exception as e:
         log.error(f"Extraction failed for '{title[:60]}': {e}")
         return None
+
+
+# Rows the model scores below this are stored as status='excluded': hidden from
+# the site like 'review', but kept so the URL dedup skips them on later runs.
+MIN_AI_FOCUS = 6
 
 
 def passes_quote_gate(e: PolicyExtraction) -> bool:
@@ -797,12 +854,17 @@ def _process_doc(holder: _ConnHolder, doc: dict, seen: set, counts: dict) -> Non
     url = doc.get("link", "")
     if not url or url in seen:
         return
+    if is_excluded_title(doc.get("title", "")):
+        return
     e = extract(doc)
     if not e:
         counts["errors"] += 1
         return
     row = build_row(doc, e)
-    status = "live" if passes_quote_gate(e) else "review"
+    if e.ai_focus < MIN_AI_FOCUS:
+        status = "excluded"
+    else:
+        status = "live" if passes_quote_gate(e) else "review"
 
     for attempt in range(2):
         try:
@@ -818,7 +880,7 @@ def _process_doc(holder: _ConnHolder, doc: dict, seen: set, counts: dict) -> Non
 
     seen.add(url)
     counts[status] += 1
-    log.info(f"  [{status}] {e.priority_category} | {doc.get('title','')[:60]}")
+    log.info(f"  [{status}] ai_focus={e.ai_focus} {e.priority_category} | {doc.get('title','')[:60]}")
     time.sleep(0.4)
 
 
@@ -881,7 +943,7 @@ def run(since: Optional[str], days: Optional[int]):
         seen = existing_urls(holder.conn)
         log.info(f"{len(seen)} documents already in database")
 
-        counts = {"live": 0, "review": 0, "errors": 0}
+        counts = {"live": 0, "review": 0, "excluded": 0, "errors": 0}
 
         for slug in DEPARTMENTS:
             for doc in fetch_documents(slug, since_date):
@@ -909,7 +971,8 @@ def run(since: Optional[str], days: Optional[int]):
     finally:
         holder.conn.close()
 
-    log.info(f"\nDone. New live: {new_live} | New to review: {new_review} | Errors: {errors}")
+    log.info(f"\nDone. New live: {new_live} | New to review: {new_review} | "
+             f"Excluded (not AI-focused): {counts['excluded']} | Errors: {errors}")
     if new_review:
         log.warning(f"{new_review} rows need a human glance: set status='live' in the "
                     f"database after checking (obligations claimed without a verbatim quote).")

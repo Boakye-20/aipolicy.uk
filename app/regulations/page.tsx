@@ -1,7 +1,13 @@
 import { getPolicies } from '@/lib/data';
+import { documentTypeCategory } from '@/components/Badges';
 import RegulationsContent from './RegulationsContent';
+
+// Announcements about rules aren't the rules: news and speeches stay in the
+// Explorer, and this page lists only the documents regulators actually issue.
+const EXCLUDED_CATEGORIES = new Set(['News & press releases', 'Speeches & statements']);
 
 export default async function RegulationsPage() {
     const policies = await getPolicies({ policyType: 'Regulation & Compliance' });
-    return <RegulationsContent initialPolicies={policies} />;
+    const documents = policies.filter(p => !EXCLUDED_CATEGORIES.has(documentTypeCategory(p.format)));
+    return <RegulationsContent initialPolicies={documents} />;
 }

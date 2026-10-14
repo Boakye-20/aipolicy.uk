@@ -5,6 +5,7 @@ import { Policy } from '@/types/policy';
 import { formatDate, withinDays } from '@/lib/utils';
 import { Shield, Clock, ExternalLink, Building2, X } from 'lucide-react';
 import { PolicyTypeBadge, NeutralBadge, DocumentTypeBadge, StatusChip, documentTypeCategory, DOCUMENT_TYPE_CATEGORIES } from '@/components/Badges';
+import StatutoryBaseline from '@/components/StatutoryBaseline';
 
 interface RegulationsContentProps {
     initialPolicies: Policy[];
@@ -87,8 +88,14 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
             <div className="mb-8">
                 <h1 className="text-3xl font-bold tracking-tight text-slate-900">Regulations monitor</h1>
                 <p className="mt-1 text-sm text-slate-600">
-                    AI compliance and regulatory requirements across UK government departments and regulators.
+                    AI law in force, and the guidance, consultations and decisions UK departments and regulators issue under it.
                 </p>
+            </div>
+
+            <StatutoryBaseline />
+
+            <div className="mb-4">
+                <h2 className="text-lg font-semibold text-slate-900">Regulator guidance &amp; consultations</h2>
                 <p className="mt-1 text-xs text-slate-400">
                     Coverage begins 1 January 2025.
                 </p>
@@ -122,7 +129,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                 <div className="rounded-md border border-slate-200 bg-white p-4">
                     <div className="flex items-center gap-2 text-slate-500">
                         <Shield className="h-4 w-4" />
-                        <p className="text-sm font-medium">AI regulations</p>
+                        <p className="text-sm font-medium">Tracked documents</p>
                     </div>
                     <p className="mt-2 text-2xl font-semibold text-slate-900 nums-tabular">{initialPolicies.length}</p>
                 </div>
@@ -214,7 +221,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
             </div>
 
             <p className="mb-6 text-sm text-slate-500">
-                {filteredPolicies.length} regulation{filteredPolicies.length !== 1 ? 's' : ''}
+                {filteredPolicies.length} document{filteredPolicies.length !== 1 ? 's' : ''}
                 {filterDept && ` · ${filterDept}`}
                 {filterSector && ` · ${filterSector}`}
                 {filterRecency && ` · ${filterRecency.toLowerCase()}`}
@@ -223,7 +230,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
             {filteredPolicies.length === 0 ? (
                 <div className="rounded-md border border-slate-200 bg-white p-12 text-center">
                     <Shield className="mx-auto mb-4 h-10 w-10 text-slate-300" />
-                    <h3 className="mb-1 text-base font-semibold text-slate-900">No regulations found</h3>
+                    <h3 className="mb-1 text-base font-semibold text-slate-900">No documents found</h3>
                     <p className="text-sm text-slate-600">Try adjusting your filters.</p>
                 </div>
             ) : (
@@ -231,7 +238,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                     <table className="w-full text-left text-sm">
                         <thead>
                             <tr className="border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                <th className="px-5 py-3">Regulation</th>
+                                <th className="px-5 py-3">Document</th>
                                 <th className="px-5 py-3">Status</th>
                                 <th className="px-5 py-3">Department</th>
                                 <th className="hidden px-5 py-3 lg:table-cell">Sector</th>
