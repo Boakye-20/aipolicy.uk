@@ -86,8 +86,11 @@ jobs:
           fi
 
       # requalify.py's revert snapshot only exists on the runner; keep it.
+      # always(): it writes the snapshot before changing any row and commits
+      # each row as it goes, so a mid-run failure or timeout leaves rows
+      # already excluded - exactly when the snapshot is needed to undo them.
       - name: Save requalify snapshot
-        if: github.event.inputs.mode == 'requalify'
+        if: always() && github.event.inputs.mode == 'requalify'
         uses: actions/upload-artifact@v4
         with:
           name: status-snapshot
