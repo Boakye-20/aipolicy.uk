@@ -5,10 +5,11 @@ and hide the ones that aren't (status='excluded').
 Older rows got in on a single keyword hit anywhere in the body (steel trade
 measures, privacy notices with "automated decision-making" boilerplate). This
 applies the same gate the ETL now uses on new rows: privacy-notice and
-personal-information-charter titles are excluded outright, and everything else
+personal-information-charter titles are excluded outright, titles that name AI
+are kept (and re-admitted if an earlier run excluded them), and everything else
 is scored with extract.py's ai_focus rubric against the full body text.
 
-Snapshots every live row's status to status_snapshot.json on first run (never
+Snapshots every live and excluded row's status to status_snapshot.json on first run (never
 overwritten), so the whole thing is fully reversible:
     python requalify.py --revert   # restore every row from snapshot
 
@@ -84,7 +85,7 @@ def ensure_snapshot(conn):
         print(f"Snapshot already present ({SNAPSHOT}) — not overwriting.")
         return
     with conn.cursor() as cur:
-        cur.execute("select id, status from \"Policy\" where status = 'live'")
+        cur.execute("select id, status from \"Policy\" where status in ('live', 'excluded')")
         snap = {r[0]: r[1] for r in cur.fetchall()}
     json.dump(snap, open(SNAPSHOT, "w"))
     print(f"Snapshot of {len(snap)} rows written to {SNAPSHOT}")
@@ -111,6 +112,18 @@ def main(limit, dry_run):
     if not dry_run:
         ensure_snapshot(conn)
 
+    # Re-admit rows an earlier run excluded on score alone although their title
+    # names AI (PDF-only pages, where the model saw just the title).
+    with conn.cursor() as cur:
+        cur.execute("select id, title from \"Policy\" where status = 'excluded'")
+        readmit = [(rid, t) for rid, t in cur.fetchall()
+                   if e.title_names_ai(t or "") and not e.is_excluded_title(t or "")]
+    for rid, title in readmit:
+        print(f"  restore  title names AI                            | {safe(title)[:60]}")
+        if not dry_run:
+            with conn.cursor() as cur:
+                cur.execute("update \"Policy\" set status = 'live' where id = %s", (rid,))
+
     with conn.cursor() as cur:
         cur.execute(
             'select id, title, description, ai_summary, url, policy_type from "Policy" '
@@ -125,6 +138,8 @@ def main(limit, dry_run):
     for rid, title, desc, summ, url, ptype in rows:
         if e.is_excluded_title(title or ""):
             focus = None
+        elif e.title_names_ai(title or ""):
+            continue
         else:
             body = e.fetch_body_text(url) or f"{desc or ''}\n{summ or ''}"
             focus = score(title or "", body)
@@ -140,7 +155,7 @@ def main(limit, dry_run):
 
     conn.close()
     verb = "would be" if dry_run else "were"
-    print(f"\nDone. {excluded}/{len(rows)} rows {verb} excluded.")
+    print(f"\nDone. {len(readmit)} rows {verb} restored, {excluded}/{len(rows)} rows {verb} excluded.")
 
 
 if __name__ == "__main__":

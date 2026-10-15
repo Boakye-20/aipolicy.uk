@@ -129,6 +129,13 @@ def body_is_ai_relevant(body: str) -> bool:
     return len(_STRONG_AI_RE.findall(body)) >= _MIN_BODY_AI_MENTIONS
 
 
+def title_names_ai(title: str) -> bool:
+    """A title that names AI outright ("AI Opportunities Action Plan", "MoU
+    with NVIDIA on AI") is never dropped on the ai_focus score alone: when the
+    content is a PDF attachment the model only sees the title, and scores it 1."""
+    return bool(_STRONG_AI_RE.search(title))
+
+
 def is_ai_relevant_doc(title_desc: str, body: Optional[str]) -> bool:
     """Title/description hit is enough; a body-only hit needs repeated mentions."""
     if is_ai_relevant(title_desc):
@@ -911,7 +918,7 @@ def _process_doc(holder: _ConnHolder, doc: dict, seen: set, counts: dict) -> Non
         counts["errors"] += 1
         return
     row = build_row(doc, e)
-    if e.ai_focus < MIN_AI_FOCUS:
+    if e.ai_focus < MIN_AI_FOCUS and not title_names_ai(doc.get("title", "")):
         status = "excluded"
     else:
         status = "live" if passes_quote_gate(e) else "review"
