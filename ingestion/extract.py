@@ -136,8 +136,10 @@ def is_ai_relevant_doc(title_desc: str, body: Optional[str]) -> bool:
     return bool(body) and body_is_ai_relevant(body)
 
 
-# Standard GOV.UK privacy notices are data-protection boilerplate, never AI policy.
-_EXCLUDED_TITLE_RE = re.compile(r"\bprivacy notice\b", re.IGNORECASE)
+# Privacy notices and personal information charters are data-protection
+# boilerplate that every department publishes, never AI policy.
+_EXCLUDED_TITLE_RE = re.compile(
+    r"\b(privacy notice|personal information charter)\b", re.IGNORECASE)
 
 
 def is_excluded_title(title: str) -> bool:
