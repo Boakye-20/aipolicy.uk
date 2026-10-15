@@ -136,8 +136,10 @@ def is_ai_relevant_doc(title_desc: str, body: Optional[str]) -> bool:
     return bool(body) and body_is_ai_relevant(body)
 
 
-# Standard GOV.UK privacy notices are data-protection boilerplate, never AI policy.
-_EXCLUDED_TITLE_RE = re.compile(r"\bprivacy notice\b", re.IGNORECASE)
+# Privacy notices and personal information charters are data-protection
+# boilerplate that every department publishes, never AI policy.
+_EXCLUDED_TITLE_RE = re.compile(
+    r"\b(privacy notice|personal information charter)\b", re.IGNORECASE)
 
 
 def is_excluded_title(title: str) -> bool:
@@ -432,16 +434,21 @@ def _fetch_ico_article(url: str) -> Optional[dict]:
             title = candidate
             break
 
-    date_m = re.search(r"<span>Date</span>\s*<strong[^>]*>([^<]+)</strong>", page)
+    def meta(label: str) -> str:
+        # Every ICO page type puts its metadata in <span>Label</span><strong>value</strong>.
+        m = re.search(rf"<span>{label}</span>\s*<strong[^>]*>([^<]+)</strong>", page)
+        return m.group(1).strip() if m else ""
+
+    # News pages carry "Date"; consultation pages carry "Start date" instead.
     pub_date = None
-    if date_m:
+    raw_date = meta("Date") or meta("Start date")
+    if raw_date:
         try:
-            pub_date = datetime.strptime(date_m.group(1).strip(), "%d %B %Y").date()
+            pub_date = datetime.strptime(raw_date, "%d %B %Y").date()
         except ValueError:
             pub_date = None
 
-    type_m = re.search(r"<span>Type</span>\s*<strong[^>]*>([^<]+)</strong>", page)
-    doc_type = type_m.group(1).strip() if type_m else "News"
+    doc_type = meta("Type") or "News"
 
     start = page.find('id="main-content"')
     end = page.find("</main>")
@@ -462,6 +469,7 @@ def _fetch_ico_article(url: str) -> Optional[dict]:
         "format": doc_type,
         "_dept_slug": "ico",
         "_body_cache": clean[:18000],  # reused by extract() — no second fetch
+        "_status": meta("Status"),     # consultations only: "Open" / "Closed"
     }
 
 
@@ -501,6 +509,48 @@ def fetch_ico_documents(since: str) -> list[dict]:
         time.sleep(0.2)
 
     log.info(f"  ICO: {len(candidate_urls)} articles in window, {len(relevant)} AI-relevant")
+    return relevant
+
+
+# The ICO's own consultations and calls for evidence (e.g. draft ADM guidance,
+# agentic AI). Top-level pages only: /YYYY/MM/<slug>/, not their sub-pages.
+_ICO_CONSULTATION_RE = re.compile(
+    r"<loc>(https://ico\.org\.uk/about-the-ico/ico-and-stakeholder-consultations/"
+    r"(\d{4})/(\d{2})/[^/<]+/)</loc>"
+)
+
+
+def fetch_ico_consultations(since: str) -> list[dict]:
+    """Discover ICO consultations via the sitemap. The URL carries the
+    publication month, which is a better window than <lastmod> (bumped by any
+    later edit). Kept rows are filed as Regulation & Compliance: a regulator's
+    own consultation on how it applies the law is regulatory by definition,
+    and the ai_focus gate still decides whether it is about AI."""
+    try:
+        r = requests.get(ICO_SITEMAP, timeout=60)
+        r.raise_for_status()
+        xml = r.text
+    except Exception as e:
+        log.error(f"ICO sitemap fetch failed: {e}")
+        return []
+
+    since_month = since[:7]
+    candidate_urls = [m.group(1) for m in _ICO_CONSULTATION_RE.finditer(xml)
+                      if f"{m.group(2)}-{m.group(3)}" >= since_month]
+
+    relevant = []
+    for url in candidate_urls:
+        doc = _fetch_ico_article(url)
+        if not doc:
+            continue
+        if is_ai_relevant_doc(doc["title"], doc["_body_cache"]):
+            doc["format"] = ("open_consultation" if doc["_status"].lower() == "open"
+                             else "closed_consultation")
+            doc["_policy_type"] = "Regulation & Compliance"
+            relevant.append(doc)
+        time.sleep(0.2)
+
+    log.info(f"  ICO consultations: {len(candidate_urls)} in window, {len(relevant)} AI-relevant")
     return relevant
 
 
@@ -749,7 +799,7 @@ def build_row(doc: dict, e: PolicyExtraction) -> dict:
         "dept_group": group,
         "title": doc.get("title", ""),
         "priority_category": e.priority_category,
-        "policy_type": e.policy_type,
+        "policy_type": doc.get("_policy_type") or e.policy_type,
         "business_impact": e.business_impact,
         "sector_focus": e.sector_focus,
         "ai_application": e.ai_application,
@@ -885,8 +935,9 @@ def _process_doc(holder: _ConnHolder, doc: dict, seen: set, counts: dict) -> Non
 
 
 def refresh_open_consultations(conn) -> None:
-    """Re-check stored open consultations/calls for evidence against the
-    GOV.UK content API and flip the document type once the window closes.
+    """Re-check stored open consultations/calls for evidence against their
+    source (GOV.UK content API, or the ICO page's Status field) and flip the
+    document type once the window closes.
 
     HTTP only, no LLM cost. Needed because GOV.UK does not reliably bump
     public_timestamp when a consultation closes, so the date-window sweep can
@@ -896,7 +947,7 @@ def refresh_open_consultations(conn) -> None:
         cur.execute(
             'select id, url from "Policy" '
             'where "format" in (\'open_consultation\', \'call_for_evidence\') '
-            'and url like \'%gov.uk%\''
+            'and (url like \'%gov.uk%\' or url like \'https://ico.org.uk/%\')'
         )
         rows = cur.fetchall()
     if not rows:
@@ -904,15 +955,12 @@ def refresh_open_consultations(conn) -> None:
     log.info(f"Re-checking {len(rows)} stored open consultations for closure...")
     flipped = 0
     for pid, url in rows:
-        api_url = url.replace("https://www.gov.uk/", "https://www.gov.uk/api/content/")
-        try:
-            r = requests.get(api_url, timeout=30)
-            if r.status_code != 200:
-                continue
-            doc_type = (r.json() or {}).get("document_type") or ""
-        except Exception as exc:
-            log.warning(f"  consultation re-check failed for {url}: {exc}")
-            continue
+        if url.startswith("https://ico.org.uk/"):
+            doc = _fetch_ico_article(url)
+            doc_type = ("closed_consultation"
+                        if doc and doc["_status"].lower() == "closed" else "")
+        else:
+            doc_type = _govuk_document_type(url)
         if doc_type and doc_type not in ("open_consultation", "call_for_evidence"):
             with conn.cursor() as cur:
                 cur.execute(
@@ -923,6 +971,18 @@ def refresh_open_consultations(conn) -> None:
             log.info(f"  closed: {doc_type} | {url}")
         time.sleep(0.2)
     log.info(f"Consultation refresh done: {flipped} flipped to closed.")
+
+
+def _govuk_document_type(url: str) -> str:
+    api_url = url.replace("https://www.gov.uk/", "https://www.gov.uk/api/content/")
+    try:
+        r = requests.get(api_url, timeout=30)
+        if r.status_code != 200:
+            return ""
+        return (r.json() or {}).get("document_type") or ""
+    except Exception as exc:
+        log.warning(f"  consultation re-check failed for {url}: {exc}")
+        return ""
 
 
 # ----------------------------------------------------------------------------
@@ -956,6 +1016,8 @@ def run(since: Optional[str], days: Optional[int]):
 
         # Direct sources (no/minimal GOV.UK Search API coverage).
         for doc in fetch_ico_documents(since_date):
+            _process_doc(holder, doc, seen, counts)
+        for doc in fetch_ico_consultations(since_date):
             _process_doc(holder, doc, seen, counts)
         for doc in fetch_fca_documents(since_date):
             _process_doc(holder, doc, seen, counts)

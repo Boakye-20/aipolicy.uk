@@ -4,9 +4,9 @@ and hide the ones that aren't (status='excluded').
 
 Older rows got in on a single keyword hit anywhere in the body (steel trade
 measures, privacy notices with "automated decision-making" boilerplate). This
-applies the same gate the ETL now uses on new rows: privacy-notice titles are
-excluded outright, and everything else is scored with extract.py's ai_focus
-rubric against the full body text.
+applies the same gate the ETL now uses on new rows: privacy-notice and
+personal-information-charter titles are excluded outright, and everything else
+is scored with extract.py's ai_focus rubric against the full body text.
 
 Snapshots every live row's status to status_snapshot.json on first run (never
 overwritten), so the whole thing is fully reversible:
@@ -132,7 +132,7 @@ def main(limit, dry_run):
             if focus is None or focus >= e.MIN_AI_FOCUS:
                 continue
         excluded += 1
-        reason = "privacy notice" if focus is None else f"ai_focus={focus}"
+        reason = "excluded title" if focus is None else f"ai_focus={focus}"
         print(f"  exclude  {reason:15} {ptype or '':24} | {safe(title)[:60]}")
         if not dry_run:
             with conn.cursor() as cur:
