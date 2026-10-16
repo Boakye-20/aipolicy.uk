@@ -97,7 +97,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
             <div className="mb-4">
                 <h2 className="text-lg font-semibold text-slate-900">Regulator guidance &amp; consultations</h2>
                 <p className="mt-1 text-xs text-slate-400">
-                    Coverage begins 1 January 2025.
+                    Coverage begins 1 January 2025. News, speeches and transparency records are in the Policy Explorer.
                 </p>
             </div>
 

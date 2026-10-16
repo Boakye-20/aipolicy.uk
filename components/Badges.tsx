@@ -159,7 +159,7 @@ export function documentTypeCategory(raw?: string | null): string {
     if (!raw || !raw.trim()) return 'Other';
     const f = raw.trim().toLowerCase().replace(/\s+/g, '_');
 
-    if (f === 'open_consultation' || f === 'call_for_evidence') return 'Open consultation';
+    if (f === 'open_consultation' || f === 'call_for_evidence' || f === 'open_call_for_evidence') return 'Open consultation';
     if (f.includes('consultation') || f.includes('call_for_evidence')) return 'Closed consultation';
     if (f === 'policy_paper' || f === 'policy_statement' || f === 'international_treaty') return 'Policy paper';
     if (['guidance', 'finalised_guidance', 'detailed_guide', 'guide', 'statutory_guidance', 'standard', 'ai_assurance_portfolio_technique'].includes(f)) return 'Guidance';
