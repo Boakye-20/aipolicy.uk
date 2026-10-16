@@ -144,9 +144,10 @@ def is_ai_relevant_doc(title_desc: str, body: Optional[str]) -> bool:
 
 
 # Privacy notices and personal information charters are data-protection
-# boilerplate that every department publishes, never AI policy.
+# boilerplate that every department publishes, never AI policy. Recruitment
+# notices ("Science Advisory Council vacancies") are not policy either.
 _EXCLUDED_TITLE_RE = re.compile(
-    r"\b(privacy notice|personal information charter)\b", re.IGNORECASE)
+    r"\b(privacy notice|personal information charter|vacancies)\b", re.IGNORECASE)
 
 
 def is_excluded_title(title: str) -> bool:
