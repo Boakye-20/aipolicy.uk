@@ -642,17 +642,34 @@ def _fetch_fca_article(url: str) -> Optional[dict]:
     }
 
 
+def _fca_sub_sitemaps(index_url: str, depth: int = 0) -> list[str]:
+    """Resolve the FCA sitemap index to the page sitemaps that hold article URLs.
+    The index nests (sitemap.xml -> sitemap-main.xml -> sitemap-main.xml?page=N),
+    so follow sitemap-main* entries until the ?page=N leaves. The firm-checker
+    sitemap is skipped: it holds no policy documents."""
+    try:
+        r = requests.get(index_url, timeout=30)
+        r.raise_for_status()
+    except Exception as e:
+        log.error(f"FCA sitemap index fetch failed for {index_url}: {e}")
+        return []
+    locs = re.findall(r"<sitemap><loc>([^<]+)</loc>", r.text)
+    pages = [u for u in locs if "?page=" in u]
+    if depth < 2:
+        for u in locs:
+            if "?page=" not in u and "/sitemap-main" in u:
+                pages += _fca_sub_sitemaps(u, depth + 1)
+    return pages
+
+
 def fetch_fca_documents(since: str) -> list[dict]:
     """Discover FCA policy documents via the sitemap index (2 sub-sitemaps),
     keep only whitelisted policy paths (excludes ~18k scam-warning URLs),
     filter to the date window, fetch each candidate once, and keep only the
     AI-relevant ones (checked against actual title+body, not just the URL)."""
-    try:
-        idx = requests.get(FCA_SITEMAP_INDEX, timeout=30)
-        idx.raise_for_status()
-        sub_sitemaps = re.findall(r"<loc>(https://www\.fca\.org\.uk/sitemap\.xml\?page=\d+)</loc>", idx.text)
-    except Exception as e:
-        log.error(f"FCA sitemap index fetch failed: {e}")
+    sub_sitemaps = _fca_sub_sitemaps(FCA_SITEMAP_INDEX)
+    if not sub_sitemaps:
+        log.error("FCA: no sub-sitemaps found - the sitemap layout may have changed")
         return []
 
     since_dt = datetime.strptime(since, "%Y-%m-%d")
