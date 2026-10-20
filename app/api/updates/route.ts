@@ -15,7 +15,7 @@ const DEPT_TO_FRAMEWORK: Record<string, string> = {
 // unless overridden by topic-based matching below.
 const UK_GOV_DEPTS = new Set([
     'DSIT', 'Cabinet_Office', 'Home_Office', 'Treasury',
-    'DfE', 'DHSC', 'DBT', 'CMA', 'FCA',
+    'DfE', 'DHSC', 'DBT', 'CMA', 'FCA', 'Ofcom',
 ]);
 
 function inferFramework(dept: string | null, primaryTopic: string | null, keyTopics: string | null): string | null {

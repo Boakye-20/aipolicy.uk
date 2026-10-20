@@ -89,6 +89,7 @@ DEPARTMENTS = {
 OTHER_SOURCES = {
     "ico": ("ICO", "Regulators"),
     "fca_direct": ("FCA", "Regulators"),
+    "ofcom": ("Ofcom", "Regulators"),
 }
 
 # GOV.UK sources whose documents also get a body check when the title and
@@ -699,6 +700,53 @@ def fetch_fca_documents(since: str) -> list[dict]:
 
 
 # ----------------------------------------------------------------------------
+# Ofcom (ofcom.org.uk) — hand-curated, not fetched.
+#
+# Every Ofcom URL (pages, sitemap, robots.txt, RSS, PDFs) returns a Cloudflare
+# challenge (403) to plain HTTP, from GitHub Actions runners too, so nothing can
+# be discovered or fetched. Instead each document is a text file in
+# ingestion/ofcom/ holding its metadata and pasted text (format in the folder's
+# README.md). Every file is read on every run; the URL dedup skips ones already
+# loaded, so the date window does not apply.
+# ----------------------------------------------------------------------------
+OFCOM_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ofcom")
+
+
+def load_ofcom_documents() -> list[dict]:
+    docs = []
+    if not os.path.isdir(OFCOM_DIR):
+        return docs
+    for name in sorted(os.listdir(OFCOM_DIR)):
+        if not name.endswith(".txt"):
+            continue
+        path = os.path.join(OFCOM_DIR, name)
+        with open(path, encoding="utf-8") as f:
+            header, _, body = f.read().partition("\n\n")
+        meta = {}
+        for line in header.splitlines():
+            key, _, value = line.partition(":")
+            meta[key.strip().lower()] = value.strip()
+        body = re.sub(r"\s+", " ", body).strip()
+        if not meta.get("url") or not meta.get("title") or len(body) < 200:
+            log.error(f"Ofcom file {name} skipped: needs url, title and the document text")
+            continue
+        if not is_ai_relevant_doc(meta["title"], body):
+            log.warning(f"Ofcom file {name} skipped: does not pass the AI filter")
+            continue
+        docs.append({
+            "title": meta["title"],
+            "link": meta["url"],
+            "description": body[:300],
+            "public_timestamp": meta.get("date", ""),
+            "format": meta.get("type") or "News",
+            "_dept_slug": "ofcom",
+            "_body_cache": body[:18000],
+        })
+    log.info(f"  Ofcom: {len(docs)} curated documents")
+    return docs
+
+
+# ----------------------------------------------------------------------------
 # Transform: strict LLM extraction
 # ----------------------------------------------------------------------------
 def extract(doc: dict) -> Optional[PolicyExtraction]:
@@ -1028,6 +1076,8 @@ def run(since: Optional[str], days: Optional[int]):
         for doc in fetch_ico_consultations(since_date):
             _process_doc(holder, doc, seen, counts)
         for doc in fetch_fca_documents(since_date):
+            _process_doc(holder, doc, seen, counts)
+        for doc in load_ofcom_documents():
             _process_doc(holder, doc, seen, counts)
 
         # Flip any stored open consultations whose window has since closed.

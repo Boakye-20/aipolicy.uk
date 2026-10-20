@@ -74,7 +74,7 @@ export default function SystemStatusBar() {
                         </span>
                     )}
                     <span className="ml-auto hidden sm:inline text-slate-500">
-                        GOV.UK · ICO · FCA
+                        GOV.UK · ICO · FCA · Ofcom
                     </span>
                 </div>
             </div>

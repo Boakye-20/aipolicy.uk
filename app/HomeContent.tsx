@@ -51,6 +51,7 @@ const DEPT_META: Record<string, { name: string; role: string }> = {
     ICO:            { name: "Information Commissioner's Office", role: 'Data protection & privacy' },
     CMA:            { name: 'Competition & Markets Authority', role: 'Competition oversight' },
     FCA:            { name: 'Financial Conduct Authority', role: 'Financial services' },
+    Ofcom:          { name: 'Ofcom', role: 'Communications & online safety' },
     DBT:            { name: 'Business & Trade', role: 'Business & trade' },
     Cabinet_Office: { name: 'Cabinet Office', role: 'Central government' },
     Home_Office:    { name: 'Home Office', role: 'Security & policing' },

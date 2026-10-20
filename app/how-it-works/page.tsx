@@ -12,6 +12,7 @@ const SOURCES = [
     { name: 'GOV.UK', detail: 'Official publications from 9 trusted departments and regulators (DSIT, DBT, Cabinet Office, Home Office, HM Treasury, DHSC, DfE, CMA).' },
     { name: 'ICO', detail: 'Information Commissioner’s Office — news, blogs and AI/data-protection guidance, pulled directly from ico.org.uk.' },
     { name: 'FCA', detail: 'Financial Conduct Authority — press releases, speeches and publications on AI in financial services, from fca.org.uk.' },
+    { name: 'Ofcom', detail: 'Ofcom — AI and online-safety documents, added by hand because ofcom.org.uk blocks automated access.' },
 ];
 
 export default function HowItWorks() {

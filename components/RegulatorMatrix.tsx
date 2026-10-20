@@ -13,6 +13,7 @@ const regulators = [
   { name: 'CMA', dept: 'CMA', fullName: 'Competition and Markets Authority' },
   { name: 'FCA', dept: 'FCA', fullName: 'Financial Conduct Authority' },
   { name: 'ICO', dept: 'ICO', fullName: "Information Commissioner's Office" },
+  { name: 'Ofcom', dept: 'Ofcom', fullName: 'Office of Communications' },
 ];
 
 // Non-map, UK-governance-native navigation. Each card filters the explorer by

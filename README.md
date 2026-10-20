@@ -1,6 +1,6 @@
 # UK AI Policy Tracker
 
-A web app that tracks UK AI policy documents (regulations, guidance, strategy, consultations, research, funding and international agreements) from GOV.UK, the ICO and the FCA.
+A web app that tracks UK AI policy documents (regulations, guidance, strategy, consultations, research, funding and international agreements) from GOV.UK, the ICO, the FCA and Ofcom.
 
 A Python pipeline reads the sources, summarises each document with an LLM and writes it to Postgres. The Next.js frontend reads that database live, so new documents appear on the site without a redeploy.
 
@@ -46,7 +46,7 @@ Open http://localhost:3000.
 ## How it works
 
 ```
-GOV.UK, ICO, FCA  ->  weekly job  ->  AI filter  ->  gpt-4o-mini  ->  Postgres  ->  website
+GOV.UK, ICO, FCA, Ofcom  ->  weekly job  ->  AI filter  ->  gpt-4o-mini  ->  Postgres  ->  website
 ```
 
 1. **Collect.** Every Monday at 06:00 UTC a GitHub Actions job runs `ingestion/extract.py`.
@@ -55,6 +55,8 @@ GOV.UK, ICO, FCA  ->  weekly job  ->  AI filter  ->  gpt-4o-mini  ->  Postgres  
      plus a separate sweep for their consultations.
    - The ICO: news pages and its own consultations (read from its sitemap).
    - The FCA site (read directly from its sitemap).
+   - Ofcom: documents added by hand as text files in `ingestion/ofcom/`, because its
+     site blocks automated access. See `ingestion/ofcom/README.md` for the format.
 2. **Filter.** A document is kept only if it mentions AI. A hit in the title or summary is
    enough. A hit only in the body needs at least 3 clear mentions, and "automated
    decision" on its own never counts. Titles containing "privacy notice" or
@@ -74,7 +76,7 @@ speeches and transparency records. Above the table is a hand-written "Law in for
 list (`components/StatutoryBaseline.tsx`). It is not produced by the pipeline, so update
 it when new AI law is made or commenced.
 
-Known gaps: Ofcom is not covered (its site blocks automated access), the FCA source
+Known gaps: Ofcom only has the documents someone has added by hand, the FCA source
 currently finds nothing, and the labels come from a model, so some will be wrong.
 
 ## Updating the data
