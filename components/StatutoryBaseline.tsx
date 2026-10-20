@@ -27,6 +27,13 @@ const instruments = [
         url: 'https://www.legislation.gov.uk/ukpga/2026/20',
     },
     {
+        name: 'Automated Vehicles Act 2024',
+        citation: '2024 c. 10',
+        date: 'Royal Assent 20 May 2024',
+        effect: 'Sets the legal framework for self-driving vehicles, including authorisation, operator licensing and who is liable when the vehicle drives itself.',
+        url: 'https://www.legislation.gov.uk/ukpga/2024/10',
+    },
+    {
         name: 'Online Safety Act 2023',
         citation: '2023 c. 50',
         date: 'Royal Assent 26 October 2023',
