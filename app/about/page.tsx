@@ -68,8 +68,9 @@ export default function About() {
                 <h3 className="mt-3 font-semibold text-gray-900">Paul K.</h3>
                 <p className="text-sm text-gray-500 mb-3">Data &amp; AI Solutions</p>
                 <p className="text-gray-700 mb-5">
-                    Paul works in data and AI, with experience across audit and risk, financial
-                    services and consulting. He holds a BSc in Politics from the London School of
+                    Paul works in data and AI, with experience across the public and private
+                    sectors, from audit and risk in local government to financial services and
+                    consulting. He holds a BSc in Politics from the London School of
                     Economics and is studying for an MSc in Big Data &amp; Digital Futures at the
                     University of Warwick. He built this tracker to turn a scattered regulatory
                     landscape into something searchable and checkable.
