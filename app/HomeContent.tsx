@@ -3,45 +3,11 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Policy } from '@/types/policy';
-import { documentTypeCategory } from '@/components/Badges';
+import { documentTypeCategory, PolicyTypeBadge, NeutralBadge, DocumentTypeBadge } from '@/components/Badges';
 import { formatDate, withinDays } from '@/lib/utils';
 import { Search, ArrowRight, ExternalLink, TrendingUp, FileText, AlertCircle, BookOpen, X } from 'lucide-react';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function getBadgeClass(policyType: string): string {
-    const map: Record<string, string> = {
-        'Regulation & Compliance':   'policy-badge policy-badge--reg',
-        'Strategy & Frameworks':     'policy-badge policy-badge--str',
-        'Implementation Guidance':   'policy-badge policy-badge--imp',
-        'Research & Analysis':       'policy-badge policy-badge--res',
-        'Funding & Investment':      'policy-badge policy-badge--fund',
-        'International Cooperation': 'policy-badge policy-badge--guid',
-    };
-    return map[policyType] ?? 'policy-badge policy-badge--guid';
-}
-
-function getBadgeLabel(policyType: string): string {
-    const map: Record<string, string> = {
-        'Regulation & Compliance':   'Regulation',
-        'Strategy & Frameworks':     'Strategy',
-        'Implementation Guidance':   'Guidance',
-        'Research & Analysis':       'Research',
-        'Funding & Investment':      'Funding',
-        'International Cooperation': 'International',
-    };
-    return map[policyType] ?? policyType;
-}
-
-// Left-border accent colour per type
-const accentBar: Record<string, string> = {
-    'Regulation & Compliance':   'bg-amber-400',
-    'Strategy & Frameworks':     'bg-indigo-400',
-    'Implementation Guidance':   'bg-cyan-400',
-    'Research & Analysis':       'bg-purple-400',
-    'Funding & Investment':      'bg-emerald-400',
-    'International Cooperation': 'bg-blue-400',
-};
 
 // Friendly metadata keyed by the department CODE stored in the DB (p.dept).
 // The matrix is built from real data, so anything not listed here still shows
@@ -294,39 +260,25 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                         ) : (
                             <div className="space-y-2">
                                 {recentPolicies.map((policy) => (
-                                    <div
+                                    <article
                                         key={policy.url}
-                                        className="card card-hover cursor-pointer"
+                                        className="cursor-pointer rounded-md border border-slate-300 bg-white p-4 transition-colors hover:border-slate-400"
                                         onClick={() => setSelectedPolicy(policy)}
                                     >
-                                        <div className="flex">
-                                            <div className={`w-0.5 ${accentBar[policy.policy_type] ?? 'bg-slate-300'} rounded-l-md flex-shrink-0`} />
-                                            <div className="flex-1 p-4">
-                                                <div className="flex items-start justify-between gap-3 mb-1.5">
-                                                    <h3 className="text-[13px] font-medium text-slate-900 leading-snug">{policy.title}</h3>
-                                                    <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0 nums-tabular mt-0.5">
-                                                        {formatDate(policy.published_date)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                                                    <span className="text-xs font-medium text-primary-700">{policy.dept}</span>
-                                                    {policy.policy_type && (
-                                                        <>
-                                                            <span className="text-slate-300 text-xs">·</span>
-                                                            <span className={getBadgeClass(policy.policy_type)}>
-                                                                {getBadgeLabel(policy.policy_type)}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                                {policy.ai_summary && (
-                                                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                                                        {policy.ai_summary}
-                                                    </p>
-                                                )}
-                                            </div>
+                                        <div className="flex items-start justify-between gap-3">
+                                            <h3 className="text-sm font-semibold leading-snug text-slate-900">{policy.title}</h3>
+                                            <span className="whitespace-nowrap text-xs text-slate-500 nums-tabular">{formatDate(policy.published_date)}</span>
                                         </div>
-                                    </div>
+                                        <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">{policy.dept?.replace(/_/g, ' ')}</p>
+                                        {policy.ai_summary && (
+                                            <p className="mt-2 text-xs leading-relaxed text-slate-700 line-clamp-2">{policy.ai_summary}</p>
+                                        )}
+                                        <div className="mt-3 flex flex-wrap gap-1.5">
+                                            <PolicyTypeBadge type={policy.policy_type} />
+                                            <DocumentTypeBadge format={policy.format} />
+                                            {policy.sector_focus && <NeutralBadge>{policy.sector_focus}</NeutralBadge>}
+                                        </div>
+                                    </article>
                                 ))}
                             </div>
                         )}
@@ -355,7 +307,7 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                                                     <div className={`text-[10px] font-semibold tracking-wider uppercase mb-0.5 ${
                                                         i === 0 ? 'text-primary-600' : 'text-slate-400'
                                                     }`}>
-                                                        {formatDate(m.published_date)} · {m.dept}
+                                                        {formatDate(m.published_date)} · {m.dept?.replace(/_/g, ' ')}
                                                     </div>
                                                     <a
                                                         href={m.url}
@@ -437,8 +389,7 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="flex">
-                            <div className={`w-1 ${accentBar[selectedPolicy.policy_type] ?? 'bg-slate-300'} flex-shrink-0`} />
-                            <div className="flex-1 p-5">
+                                                        <div className="flex-1 p-5">
                                 <button
                                     onClick={() => setSelectedPolicy(null)}
                                     className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors"
@@ -449,15 +400,8 @@ export default function HomeContent({ initialPolicies }: { initialPolicies: Poli
                                     {selectedPolicy.title}
                                 </h3>
                                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                                    <span className="text-xs font-medium text-primary-700">{selectedPolicy.dept}</span>
-                                    {selectedPolicy.policy_type && (
-                                        <>
-                                            <span className="text-slate-300 text-xs">·</span>
-                                            <span className={getBadgeClass(selectedPolicy.policy_type)}>
-                                                {getBadgeLabel(selectedPolicy.policy_type)}
-                                            </span>
-                                        </>
-                                    )}
+                                    <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{selectedPolicy.dept?.replace(/_/g, ' ')}</span>
+                                    <PolicyTypeBadge type={selectedPolicy.policy_type} />
                                     <span className="text-slate-300 text-xs">·</span>
                                     <span className="text-xs text-slate-400 nums-tabular">{formatDate(selectedPolicy.published_date)}</span>
                                 </div>
