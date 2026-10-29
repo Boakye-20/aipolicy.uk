@@ -74,7 +74,7 @@ app/
   departments/                -> DepartmentsContent     (per-department charts)
   analytics/                  -> AnalyticsContent       (whole-dataset charts)
   topics/                     -> TopicsContent          (topic cloud + per-topic drilldown)
-  about/, how-it-works/       (static pages)
+  about/                      (static page)
   layout.tsx                  (sticky header, footer, nav)
 
 components/

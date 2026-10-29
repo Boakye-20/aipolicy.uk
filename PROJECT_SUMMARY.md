@@ -48,7 +48,7 @@ This gives instant server-rendered loads with no spinners. Follow this pattern w
 - `/departments` — per-department charts
 - `/analytics` — whole-dataset charts
 - `/topics` — topic cloud + per-topic drilldown
-- `/about`, `/how-it-works` — static pages
+- `/about` — static page
 
 ## Data model
 

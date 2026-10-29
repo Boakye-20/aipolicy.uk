@@ -16,7 +16,7 @@ A Python pipeline reads the sources, summarises each document with an LLM and wr
 | `/topics` | Documents grouped by topic |
 | `/regulations` | Regulatory documents only |
 | `/analytics` | Charts of trends over time |
-| `/how-it-works`, `/about`, `/privacy` | Background and policy pages |
+| `/about`, `/privacy` | Background and policy pages |
 
 ## Running it locally
 
