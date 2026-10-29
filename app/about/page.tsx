@@ -34,10 +34,10 @@ export default function About() {
                     This platform provides a centralised, searchable database of UK AI policies with:
                 </p>
                 <ul className="list-disc pl-5 mb-6 space-y-2 text-gray-700">
-                    <li>Comprehensive coverage of AI policies across all government departments</li>
+                    <li>AI-related publications from GOV.UK departments, the ICO and the CMA, plus the FCA and Ofcom where available</li>
                     <li>Clear categorisation by policy type, department, and sector</li>
-                    <li>Regular updates on new policies and regulatory changes</li>
-                    <li>Actionable insights and analysis of policy implications</li>
+                    <li>Weekly updates, with open consultations marked closed once their deadline passes</li>
+                    <li>Short summaries, with any obligations backed by a verbatim quote from the source</li>
                 </ul>
                 <div className="bg-white p-4 rounded-lg border border-blue-100">
                     <h3 className="font-semibold text-gray-800 mb-2">Key Features:</h3>
@@ -66,8 +66,8 @@ export default function About() {
                         <div className="flex items-start">
                             <Database className="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
                             <div>
-                                <h4 className="font-medium text-gray-900">Data Integration</h4>
-                                <p className="text-sm text-gray-600">Connect with your existing compliance systems</p>
+                                <h4 className="font-medium text-gray-900">Review Gate</h4>
+                                <p className="text-sm text-gray-600">Unverified claims are held back until a human checks them</p>
                             </div>
                         </div>
                     </div>
@@ -86,7 +86,7 @@ export default function About() {
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">Data Collection</h3>
                             <p className="text-gray-700">
-                                We continuously monitor and collect AI policy documents from all UK government departments, agencies, and regulatory bodies. Our sources include official publications, parliamentary records, and regulatory announcements.
+                                Every Monday an automated job collects documents published since its last run from GOV.UK departments, the ICO and the CMA, with the FCA read from its own site. Ofcom blocks automated access, so its documents are added by hand. Only documents that genuinely mention AI are kept.
                             </p>
                         </div>
                     </div>
@@ -98,7 +98,7 @@ export default function About() {
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">Analysis & Categorisation</h3>
                             <p className="text-gray-700">
-                                Each policy is analysed and categorised by our AI systems. We identify key attributes such as policy type, affected sectors, implementation dates, and compliance requirements.
+                                The full text of each document goes to a language model (gpt-4o-mini), which fills in a fixed form: policy type, sector, a two-sentence summary, any obligations with the exact quote they came from, and a score for how much the document is about AI.
                             </p>
                         </div>
                     </div>
@@ -108,9 +108,9 @@ export default function About() {
                             <span className="text-blue-600 font-bold">3</span>
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Insight Generation</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Review & Publication</h3>
                             <p className="text-gray-700">
-                                Our platform processes the structured data to generate actionable insights, highlight regulatory trends, and provide clear guidance on compliance requirements for different AI applications.
+                                Summaries whose obligations cannot be backed by a quote are hidden until a human reads them, and documents that are not really about AI are excluded. The Regulations page also carries a hand-written "Law in force" list of statutes, which is updated manually.
                             </p>
                         </div>
                     </div>
@@ -160,36 +160,28 @@ export default function About() {
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Data Sources</h3>
                         <p className="text-gray-700 mb-4">
-                            Our database includes policies from all major UK government departments and regulatory bodies, including but not limited to:
+                            Documents are collected from:
                         </p>
                         <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                            <li>Department for Science, Innovation and Technology (DSIT)</li>
-                            <li>Competition and Markets Authority (CMA)</li>
-                            <li>Information Commissioner's Office (ICO)</li>
-                            <li>Centre for Data Ethics and Innovation (CDEI)</li>
-                            <li>Office for Artificial Intelligence</li>
-                            <li>And other relevant government agencies</li>
+                            <li>GOV.UK: DSIT, DBT, Cabinet Office, Home Office, Treasury, DHSC, DfE, CMA and FCA publications, plus their consultations</li>
+                            <li>Information Commissioner's Office (ICO): news and consultations</li>
+                            <li>Financial Conduct Authority (FCA): read from its own site</li>
+                            <li>Ofcom: added by hand, so coverage is partial</li>
                         </ul>
                     </div>
 
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Update Frequency</h3>
                         <p className="text-gray-700">
-                            Our database is updated quarterly to ensure you have access to the latest policy developments. Major regulatory announcements are added within 24-48 hours of publication.
+                            The collection job runs every Monday at 06:00 UTC, and pages refresh from the database at most once an hour. Items published between runs appear after the next run.
                         </p>
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Analysis Framework</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Accuracy</h3>
                         <p className="text-gray-700 mb-2">
-                            Each policy is analysed using a consistent framework that evaluates:
+                            Labels and summaries are generated by a model, so some will be wrong. Always check the linked source document before relying on anything here. This site is not legal advice.
                         </p>
-                        <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                            <li>Regulatory requirements and compliance obligations</li>
-                            <li>Impact on different sectors and business functions</li>
-                            <li>Implementation timelines and transitional provisions</li>
-                            <li>Interactions with other relevant regulations</li>
-                        </ul>
                     </div>
                 </div>
             </section>
@@ -246,7 +238,7 @@ export default function About() {
                     </div>
                     <div className="ml-3">
                         <p className="text-sm text-blue-700">
-                            This is a portfolio project built with Next.js, TypeScript, and Tailwind CSS. The application demonstrates modern web development practices and data visualization techniques. Automated categorization powered by GPT-4.
+                            This is a portfolio project built with Next.js, TypeScript, and Tailwind CSS. The application demonstrates modern web development practices and data visualization techniques. Automated categorisation uses gpt-4o-mini.
                         </p>
                     </div>
                 </div>

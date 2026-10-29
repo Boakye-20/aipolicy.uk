@@ -12,6 +12,7 @@ import {
     Tag,
     Menu,
     X,
+    Info,
 } from 'lucide-react';
 
 const navigation = [
@@ -21,6 +22,7 @@ const navigation = [
     { name: 'Departments', href: '/departments', icon: Building2 },
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
     { name: 'Topics', href: '/topics', icon: Tag },
+    { name: 'About', href: '/about', icon: Info },
 ];
 
 export default function Navigation() {
