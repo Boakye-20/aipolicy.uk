@@ -29,7 +29,7 @@ export default function Error({
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
             <p className="text-gray-600 mb-6">
-                This part of the page failed to load. The rest of the app is unaffected —
+                This part of the page failed to load. The rest of the app is unaffected.
                 you can try again, or navigate elsewhere using the menu above.
             </p>
             <button

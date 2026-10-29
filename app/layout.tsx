@@ -53,7 +53,6 @@ function Footer() {
         <footer className="border-t border-slate-200 bg-white mt-12">
             <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
-                    <p>UK AI Policy Tracker · Built by Paul Kwarteng</p>
                     <p className="text-xs">
                         Summaries link to official sources and are not a substitute for legal advice.
                         {' '}·{' '}

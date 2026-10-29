@@ -7,7 +7,7 @@ const cards = [
         badge: 'No Specific AI Bill',
         badgeClass: 'badge-proposed',
         heading: 'Incremental Adaptations',
-        body: 'No dedicated cross-sector AI bill is before Parliament. Regulation proceeds via targeted modifications to existing regimes — e.g. updates to the Crime and Policing Bill regarding CSAM detection obligations.',
+        body: 'No dedicated cross-sector AI bill is before Parliament. Regulation proceeds via targeted modifications to existing regimes, e.g. updates to the Crime and Policing Bill regarding CSAM detection obligations.',
     },
     {
         category: 'Regulatory Oversight',

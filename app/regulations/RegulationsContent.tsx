@@ -122,7 +122,7 @@ export default function RegulationsContent({ initialPolicies }: RegulationsConte
                         <p className="text-sm font-medium">Most active (3 months)</p>
                     </div>
                     <p className="mt-2 text-2xl font-semibold text-slate-900">
-                        {stats.mostActive ? stats.mostActive[0].replace(/_/g, ' ') : '—'}
+                        {stats.mostActive ? stats.mostActive[0].replace(/_/g, ' ') : '-'}
                         {stats.mostActive && <span className="ml-2 text-base font-medium text-slate-500 nums-tabular">{stats.mostActive[1]}</span>}
                     </p>
                 </div>

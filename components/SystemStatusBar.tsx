@@ -33,7 +33,7 @@ export default function SystemStatusBar() {
                     ? new Date(Math.max(...times)).toLocaleDateString('en-GB', {
                           day: 'numeric', month: 'short', year: 'numeric',
                       })
-                    : '—';
+                    : '-';
                 setStats({ total: data.length, sources, lastUpdated: last });
             })
             .catch(() => !cancelled && setFailed(true));
