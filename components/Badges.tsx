@@ -118,22 +118,16 @@ export function DocumentTypeBadge({ format }: { format?: string | null }) {
 
 // Status chip for the Regulations table. Shows the same grouped category as
 // the document-type filter (documentTypeCategory), so the table column and
-// the filter dropdown always line up one-to-one. Every chip gets a dot for a
-// consistent scan line. One colour, one meaning: amber = open consultation
-// (still taking input, you can act); everything else is muted slate.
-const CATEGORY_DOT: Record<string, string> = {
-    'Open consultation': 'bg-amber-500',
-    'Closed consultation': 'bg-slate-400',
-};
-
+// the filter dropdown always line up one-to-one. One colour, one meaning:
+// only an open consultation (still taking input, you can act) gets an amber
+// dot and amber text; everything else is a plain slate chip.
 export function StatusChip({ format }: { format?: string | null }) {
     const category = documentTypeCategory(format);
-    const dot = CATEGORY_DOT[category] || 'bg-slate-300';
-    const emphasis = category === 'Open consultation' ? 'text-amber-700 font-semibold' : 'text-slate-700 font-medium';
+    const open = category === 'Open consultation';
     return (
         <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded border border-slate-300 bg-white px-2 py-0.5 text-xs">
-            <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-            <span className={emphasis}>{category}</span>
+            {open && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+            <span className={open ? 'text-amber-700 font-semibold' : 'text-slate-700 font-medium'}>{category}</span>
         </span>
     );
 }
