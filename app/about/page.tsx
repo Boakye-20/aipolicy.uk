@@ -1,18 +1,11 @@
 import Link from 'next/link';
-import { Github, Linkedin, Search, Shield, Building2, TrendingUp, FileSearch } from 'lucide-react';
+import { Github, Linkedin, FileSearch } from 'lucide-react';
 
 export const metadata = {
     title: 'About | UK AI Policy Tracker',
     description:
         'What the UK AI Policy Tracker is, what it covers, its limits, and who built it.',
 };
-
-const SECTIONS = [
-    { name: 'Explorer', href: '/policy-explorer', icon: Search, detail: 'Search and filter every tracked document by type, department, sector and date.' },
-    { name: 'Regulations', href: '/regulations', icon: Shield, detail: 'Regulator guidance and compliance material, plus a hand-maintained list of AI-relevant law in force.' },
-    { name: 'Departments', href: '/departments', icon: Building2, detail: 'What each department and regulator has published on AI.' },
-    { name: 'Analytics', href: '/analytics', icon: TrendingUp, detail: 'Trends in publishing activity over time.' },
-];
 
 export default function About() {
     return (
@@ -29,21 +22,6 @@ export default function About() {
                 and Ofcom. This site is for anyone who needs to keep up with it, including
                 compliance and legal teams, policy analysts and business leaders.
             </p>
-
-            {/* What's on the site */}
-            <section className="mt-10">
-                <h2 className="text-xl font-semibold text-gray-900">What you can do here</h2>
-                <div className="mt-4 grid sm:grid-cols-2 gap-3">
-                    {SECTIONS.map((s) => (
-                        <Link key={s.name} href={s.href} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
-                            <h3 className="flex items-center gap-2 font-semibold text-gray-900">
-                                <s.icon className="w-4 h-4 text-blue-600" /> {s.name}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">{s.detail}</p>
-                        </Link>
-                    ))}
-                </div>
-            </section>
 
             {/* How it works, in brief */}
             <section className="mt-10">
@@ -89,11 +67,11 @@ export default function About() {
                 <h2 className="text-xl font-semibold text-gray-900">Who built it</h2>
                 <h3 className="mt-3 font-semibold text-gray-900">Paul K.</h3>
                 <p className="text-sm text-gray-500 mb-3">Data &amp; AI Solutions</p>
-                <p className="text-gray-700 mb-3">
-                    Paul is a Data and AI Solutions specialist focused on building data-driven applications that solve real business problems. His recent work includes enterprise AI systems for financial services, automation tools for business intelligence, and several portfolio projects demonstrating end-to-end product development.
-                </p>
                 <p className="text-gray-700 mb-5">
-                    With a BSc in Politics from the London School of Economics and experience spanning financial services, consulting, and technical implementation, Paul brings a unique blend of business acumen and technical expertise to every project. He specialises in taking complex datasets and regulatory landscapes and transforming them into actionable platforms and practical business intelligence tools.
+                    Paul builds data and AI applications, with a background in financial services
+                    and consulting and a BSc in Politics from the London School of Economics. He
+                    built this tracker to turn a scattered regulatory landscape into something
+                    searchable and checkable.
                 </p>
                 <div className="flex flex-wrap gap-3">
                     <a
