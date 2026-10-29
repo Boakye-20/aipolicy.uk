@@ -67,7 +67,7 @@ export default function Privacy() {
                 <p className="text-sm leading-relaxed text-slate-700">
                     Questions about this policy can be sent to{' '}
                     <a href="mailto:paulkwarteng12@gmail.com" className="text-primary-600 hover:text-primary-700 underline">
-                        paulkwarteng12@gmail.com
+                        paulkwarteng2002@gmail.com
                     </a>.
                 </p>
             </section>
